@@ -1,0 +1,55 @@
+name: Nirapon Nightly Readiness Refresh
+
+# Pulls the live task register from the Apps Script backend, recomputes
+# readiness rollups + CAP priorities, appends a trend snapshot, and commits
+# the refreshed analytics back to the repo so GitHub Pages serves up-to-date
+# numbers every morning before the team logs in.
+
+on:
+  schedule:
+    - cron: '0 18 * * *'      # 18:00 UTC == 00:00 Bangladesh (UTC+6), nightly
+  workflow_dispatch:           # allow manual run from the Actions tab
+
+permissions:
+  contents: write              # needed to commit the refreshed JSON/CSV
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Run readiness analytics
+        env:
+          # Add your Apps Script /exec URL as a repo secret named APPS_SCRIPT_URL.
+          # If unset, the job falls back to a committed tasks.json (demo mode).
+          APPS_SCRIPT_URL: ${{ secrets.APPS_SCRIPT_URL }}
+        run: |
+          if [ -n "$APPS_SCRIPT_URL" ]; then
+            echo "Pulling live state from Apps Script…"
+            python nirapon_analytics.py --url "$APPS_SCRIPT_URL"
+          elif [ -f tasks.json ]; then
+            echo "No APPS_SCRIPT_URL secret — using committed tasks.json (demo mode)."
+            python nirapon_analytics.py --in tasks.json
+          else
+            echo "Nothing to analyse (no URL secret, no tasks.json). Skipping."
+            exit 0
+          fi
+
+      - name: Commit refreshed analytics
+        run: |
+          git config user.name  "nirapon-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add readiness_summary.json readiness_history.csv 2>/dev/null || true
+          if git diff --staged --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "chore: nightly readiness refresh [skip ci]"
+            git push
+          fi
