@@ -1,0 +1,394 @@
+{
+  "generated": "2026-06-29T20:12:49.742250+00:00",
+  "headline": {
+    "overall_readiness": 64.0,
+    "pass_threshold": 90,
+    "audit_ready": false,
+    "total_tasks": 123,
+    "completed": 44,
+    "verified": 31,
+    "verification_gap": 13,
+    "delayed": 18,
+    "not_started": 25,
+    "critical_open": 19
+  },
+  "insights": {
+    "strongest_scope": "Fire",
+    "weakest_scope": "Boiler",
+    "weakest_area": "Boiler"
+  },
+  "by_scope": {
+    "Boiler": {
+      "pct": 37.5,
+      "count": 2
+    },
+    "Documentation": {
+      "pct": 62.8,
+      "count": 29
+    },
+    "Electrical": {
+      "pct": 66.0,
+      "count": 26
+    },
+    "Fire": {
+      "pct": 66.8,
+      "count": 25
+    },
+    "Safety Management": {
+      "pct": 64.5,
+      "count": 21
+    },
+    "Structural": {
+      "pct": 61.8,
+      "count": 20
+    }
+  },
+  "by_area": {
+    "Boiler": {
+      "pct": 25.0,
+      "count": 7
+    },
+    "CNG Station": {
+      "pct": 64.3,
+      "count": 7
+    },
+    "Canteen": {
+      "pct": 72.2,
+      "count": 9
+    },
+    "Chemical Warehouse": {
+      "pct": 58.0,
+      "count": 5
+    },
+    "ETP": {
+      "pct": 83.1,
+      "count": 8
+    },
+    "Elastic": {
+      "pct": 60.0,
+      "count": 13
+    },
+    "Printing": {
+      "pct": 56.7,
+      "count": 12
+    },
+    "Security Building": {
+      "pct": 58.1,
+      "count": 8
+    },
+    "Transformer Room": {
+      "pct": 81.2,
+      "count": 4
+    },
+    "Utility": {
+      "pct": 64.4,
+      "count": 8
+    },
+    "WTP & Fire Pump": {
+      "pct": 44.2,
+      "count": 6
+    },
+    "Warehouse": {
+      "pct": 60.7,
+      "count": 7
+    },
+    "Warehouse Operation": {
+      "pct": 86.4,
+      "count": 7
+    },
+    "Workshop": {
+      "pct": 85.0,
+      "count": 9
+    },
+    "Yarn Dyeing": {
+      "pct": 62.7,
+      "count": 13
+    }
+  },
+  "by_department": {
+    "Boiler & Utility": {
+      "pct": 61.2,
+      "count": 8
+    },
+    "Civil / Structural": {
+      "pct": 64.3,
+      "count": 29
+    },
+    "Compliance": {
+      "pct": 48.7,
+      "count": 15
+    },
+    "EHS / Fire Safety": {
+      "pct": 59.1,
+      "count": 22
+    },
+    "Electrical": {
+      "pct": 67.5,
+      "count": 28
+    },
+    "Engineering & Maintenance": {
+      "pct": 81.7,
+      "count": 6
+    },
+    "HR & Admin": {
+      "pct": 78.3,
+      "count": 9
+    },
+    "Procurement": {
+      "pct": 66.7,
+      "count": 6
+    }
+  },
+  "cap_priority": [
+    {
+      "id": "NRP-013",
+      "area": "Elastic",
+      "scope": "Structural",
+      "task": "Detailed Engineering Assessment (DEA) report",
+      "dept": "Civil / Structural",
+      "priority": "Critical",
+      "status": "Delayed",
+      "plan": ""
+    },
+    {
+      "id": "NRP-056",
+      "area": "Security Building",
+      "scope": "Structural",
+      "task": "Detailed Engineering Assessment (DEA) report",
+      "dept": "Civil / Structural",
+      "priority": "Critical",
+      "status": "Delayed",
+      "plan": ""
+    },
+    {
+      "id": "NRP-079",
+      "area": "Chemical Warehouse",
+      "scope": "Structural",
+      "task": "Retrofitting of flagged columns & beams",
+      "dept": "Civil / Structural",
+      "priority": "Critical",
+      "status": "Delayed",
+      "plan": ""
+    },
+    {
+      "id": "NRP-112",
+      "area": "ETP",
+      "scope": "Structural",
+      "task": "Soil test & foundation review report",
+      "dept": "Civil / Structural",
+      "priority": "Critical",
+      "status": "Delayed",
+      "plan": ""
+    },
+    {
+      "id": "NRP-113",
+      "area": "ETP",
+      "scope": "Fire",
+      "task": "Quarterly fire drill & evacuation records",
+      "dept": "EHS / Fire Safety",
+      "priority": "Critical",
+      "status": "Delayed",
+      "plan": ""
+    },
+    {
+      "id": "NRP-122",
+      "area": "Transformer Room",
+      "scope": "Fire",
+      "task": "Addressable fire detection & alarm system",
+      "dept": "EHS / Fire Safety",
+      "priority": "Critical",
+      "status": "Delayed",
+      "plan": ""
+    },
+    {
+      "id": "NRP-001",
+      "area": "Printing",
+      "scope": "Structural",
+      "task": "Detailed Engineering Assessment (DEA) report",
+      "dept": "Civil / Structural",
+      "priority": "Critical",
+      "status": "Not Started",
+      "plan": ""
+    },
+    {
+      "id": "NRP-014",
+      "area": "Elastic",
+      "scope": "Structural",
+      "task": "Mezzanine / roof load verification",
+      "dept": "Civil / Structural",
+      "priority": "Critical",
+      "status": "Not Started",
+      "plan": ""
+    },
+    {
+      "id": "NRP-030",
+      "area": "Yarn Dyeing",
+      "scope": "Fire",
+      "task": "Addressable fire detection & alarm system",
+      "dept": "EHS / Fire Safety",
+      "priority": "Critical",
+      "status": "Not Started",
+      "plan": ""
+    },
+    {
+      "id": "NRP-083",
+      "area": "WTP & Fire Pump",
+      "scope": "Structural",
+      "task": "Mezzanine / roof load verification",
+      "dept": "Civil / Structural",
+      "priority": "Critical",
+      "status": "Not Started",
+      "plan": ""
+    },
+    {
+      "id": "NRP-089",
+      "area": "Boiler",
+      "scope": "Structural",
+      "task": "Crack mapping survey & repair",
+      "dept": "Civil / Structural",
+      "priority": "Critical",
+      "status": "Not Started",
+      "plan": ""
+    },
+    {
+      "id": "NRP-090",
+      "area": "Boiler",
+      "scope": "Fire",
+      "task": "Quarterly fire drill & evacuation records",
+      "dept": "EHS / Fire Safety",
+      "priority": "Critical",
+      "status": "Not Started",
+      "plan": ""
+    },
+    {
+      "id": "NRP-091",
+      "area": "Boiler",
+      "scope": "Fire",
+      "task": "Means-of-egress / exit width compliance",
+      "dept": "Civil / Structural",
+      "priority": "Critical",
+      "status": "Not Started",
+      "plan": ""
+    },
+    {
+      "id": "NRP-016",
+      "area": "Elastic",
+      "scope": "Fire",
+      "task": "Quarterly fire drill & evacuation records",
+      "dept": "EHS / Fire Safety",
+      "priority": "Critical",
+      "status": "In Progress",
+      "plan": ""
+    },
+    {
+      "id": "NRP-027",
+      "area": "Yarn Dyeing",
+      "scope": "Structural",
+      "task": "Retrofitting of flagged columns & beams",
+      "dept": "Civil / Structural",
+      "priority": "Critical",
+      "status": "In Progress",
+      "plan": ""
+    },
+    {
+      "id": "NRP-031",
+      "area": "Yarn Dyeing",
+      "scope": "Fire",
+      "task": "Hydrant network & hose reel coverage",
+      "dept": "Engineering & Maintenance",
+      "priority": "Critical",
+      "status": "In Progress",
+      "plan": ""
+    },
+    {
+      "id": "NRP-064",
+      "area": "Warehouse",
+      "scope": "Structural",
+      "task": "Crack mapping survey & repair",
+      "dept": "Civil / Structural",
+      "priority": "Critical",
+      "status": "In Progress",
+      "plan": ""
+    },
+    {
+      "id": "NRP-073",
+      "area": "Warehouse Operation",
+      "scope": "Fire",
+      "task": "Fire pump set commissioning (diesel+electric+jockey)",
+      "dept": "Engineering & Maintenance",
+      "priority": "Critical",
+      "status": "In Progress",
+      "plan": ""
+    },
+    {
+      "id": "NRP-114",
+      "area": "ETP",
+      "scope": "Fire",
+      "task": "Hydrant network & hose reel coverage",
+      "dept": "Engineering & Maintenance",
+      "priority": "Critical",
+      "status": "In Progress",
+      "plan": ""
+    },
+    {
+      "id": "NRP-003",
+      "area": "Printing",
+      "scope": "Fire",
+      "task": "Quarterly fire drill & evacuation records",
+      "dept": "EHS / Fire Safety",
+      "priority": "High",
+      "status": "Delayed",
+      "plan": ""
+    },
+    {
+      "id": "NRP-022",
+      "area": "Elastic",
+      "scope": "Safety Management",
+      "task": "Emergency Response Team (ERT) roster",
+      "dept": "EHS / Fire Safety",
+      "priority": "High",
+      "status": "Delayed",
+      "plan": ""
+    },
+    {
+      "id": "NRP-038",
+      "area": "Yarn Dyeing",
+      "scope": "Documentation",
+      "task": "Approved structural design drawings",
+      "dept": "Civil / Structural",
+      "priority": "High",
+      "status": "Delayed",
+      "plan": ""
+    },
+    {
+      "id": "NRP-040",
+      "area": "Utility",
+      "scope": "Fire",
+      "task": "Means-of-egress / exit width compliance",
+      "dept": "Civil / Structural",
+      "priority": "High",
+      "status": "Delayed",
+      "plan": ""
+    },
+    {
+      "id": "NRP-041",
+      "area": "Utility",
+      "scope": "Electrical",
+      "task": "Lightning protection system (LPS) audit",
+      "dept": "Electrical",
+      "priority": "High",
+      "status": "Delayed",
+      "plan": ""
+    },
+    {
+      "id": "NRP-054",
+      "area": "Canteen",
+      "scope": "Documentation",
+      "task": "Boiler certificate & operator license",
+      "dept": "Boiler & Utility",
+      "priority": "High",
+      "status": "Delayed",
+      "plan": ""
+    }
+  ]
+}
