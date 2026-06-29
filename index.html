@@ -1,0 +1,1424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nirapon Readiness Core · Good & Fast Packaging</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700;9..144,900&family=Archivo:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{
+  /* Control-room base */
+  --bg:#0A1130; --bg-2:#0d1640; --panel:#131d4d; --panel-2:#18235c; --panel-3:#1f2c6e;
+  --line:rgba(140,160,230,.16); --line-2:rgba(140,160,230,.30);
+  --ink:#EAEFFF; --muted:#9AA8D6; --faint:#6B79AE;
+  /* Signals */
+  --ready:#15C57E; --ready-soft:rgba(21,197,126,.15);
+  --gold:#F6B743; --gold-soft:rgba(246,183,67,.15);
+  --warn:#FF8A3D; --danger:#FF4D6A;
+  /* Scope colors */
+  --sc-structural:#3FB8F5; --sc-fire:#FF4D6A; --sc-electrical:#FBC02D;
+  --sc-boiler:#B18CFF; --sc-mgmt:#2DD4BF; --sc-docs:#8B9DFF;
+  /* ORSVAI */
+  --o:#3B82F6; --r:#22A95B; --s:#F2811D; --v:#8B5CF6; --a:#11A89A; --i:#4F8DF7;
+  --radius:16px; --radius-sm:11px;
+  --shadow:0 18px 50px -20px rgba(0,0,0,.7);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Archivo',system-ui,sans-serif;background:var(--bg);color:var(--ink);
+  line-height:1.5;-webkit-font-smoothing:antialiased;
+  background-image:
+    radial-gradient(1200px 600px at 80% -10%, rgba(63,184,245,.10), transparent 60%),
+    radial-gradient(1000px 500px at 0% 0%, rgba(177,140,255,.10), transparent 55%);
+  background-attachment:fixed;
+}
+.mono{font-family:'JetBrains Mono',monospace}
+.serif{font-family:'Fraunces',serif}
+h1,h2,h3{font-family:'Fraunces',serif;font-weight:700;letter-spacing:-.01em;line-height:1.1}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+input,select,textarea{font-family:inherit;font-size:14px}
+a{color:inherit}
+::selection{background:var(--gold);color:#1a1300}
+.hidden{display:none!important}
+
+/* ---------- LOGIN GATE ---------- */
+#gate{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(900px 600px at 50% 20%,rgba(63,184,245,.14),transparent 60%),var(--bg);padding:24px}
+.gate-card{width:100%;max-width:412px;background:linear-gradient(180deg,var(--panel-2),var(--panel));
+  border:1px solid var(--line-2);border-radius:22px;padding:38px 34px;box-shadow:var(--shadow);text-align:center}
+.gate-mark{font-family:'Fraunces',serif;font-weight:900;font-size:13px;letter-spacing:.32em;color:var(--gold);text-transform:uppercase}
+.gate-card h1{font-size:30px;margin:14px 0 6px}
+.gate-card p{color:var(--muted);font-size:13.5px;margin-bottom:26px}
+.gate-card input{width:100%;padding:14px 16px;background:var(--bg-2);border:1px solid var(--line-2);
+  border-radius:12px;color:var(--ink);margin-bottom:13px;text-align:center;letter-spacing:.12em}
+.gate-card input:focus{outline:none;border-color:var(--sc-structural)}
+.gate-btn{width:100%;padding:14px;border-radius:12px;font-weight:800;font-size:14.5px;letter-spacing:.04em;
+  background:linear-gradient(120deg,var(--ready),#0e9e64);color:#021b10;transition:.2s}
+.gate-btn:hover{transform:translateY(-1px);box-shadow:0 12px 28px -12px var(--ready)}
+.gate-err{color:var(--danger);font-size:12.5px;margin-top:12px;min-height:16px}
+.gate-hint{margin-top:18px;font-size:11.5px;color:var(--faint);border-top:1px solid var(--line);padding-top:14px}
+
+/* ---------- SHELL ---------- */
+.shell{max-width:1280px;margin:0 auto;padding:0 22px 80px}
+.topbar{position:sticky;top:0;z-index:60;backdrop-filter:blur(14px);
+  background:rgba(10,17,48,.78);border-bottom:1px solid var(--line);margin:0 -22px 0;padding:14px 22px}
+.topbar-in{max-width:1280px;margin:0 auto;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:13px}
+.brand-logo{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;flex-shrink:0;
+  background:linear-gradient(135deg,var(--sc-structural),var(--sc-boiler));font-family:'Fraunces',serif;font-weight:900;color:#fff;font-size:20px;
+  box-shadow:0 8px 22px -8px rgba(63,184,245,.6)}
+.brand-name{font-family:'Fraunces',serif;font-weight:800;font-size:18px;line-height:1}
+.brand-sub{font-size:10.5px;color:var(--muted);letter-spacing:.16em;text-transform:uppercase;margin-top:3px}
+.top-meta{margin-left:auto;display:flex;align-items:center;gap:16px}
+.live-dot{width:8px;height:8px;border-radius:50%;background:var(--ready);box-shadow:0 0 0 0 var(--ready);animation:pulse 2s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(21,197,126,.55)}70%{box-shadow:0 0 0 9px rgba(21,197,126,0)}100%{box-shadow:0 0 0 0 rgba(21,197,126,0)}}
+.top-status{font-size:11.5px;color:var(--muted);display:flex;align-items:center;gap:7px}
+.icon-btn{width:36px;height:36px;border-radius:10px;border:1px solid var(--line-2);background:var(--panel);
+  display:grid;place-items:center;font-size:15px;transition:.18s}
+.icon-btn:hover{border-color:var(--line-2);background:var(--panel-2);transform:translateY(-1px)}
+
+/* ---------- TABS ---------- */
+.tabs{display:flex;gap:6px;overflow-x:auto;padding:16px 0 4px;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{white-space:nowrap;padding:10px 17px;border-radius:11px;font-weight:600;font-size:13.5px;color:var(--muted);
+  border:1px solid transparent;display:flex;align-items:center;gap:8px;transition:.16s}
+.tab:hover{color:var(--ink);background:var(--panel)}
+.tab.active{color:var(--ink);background:var(--panel-2);border-color:var(--line-2);box-shadow:inset 0 0 0 1px rgba(255,255,255,.02)}
+.tab .ti{font-size:15px}
+.tab-badge{font-size:10.5px;font-weight:700;padding:1px 7px;border-radius:20px;background:var(--gold-soft);color:var(--gold)}
+
+/* ---------- GENERIC PANELS ---------- */
+.panel{background:linear-gradient(180deg,var(--panel-2),var(--panel));border:1px solid var(--line);
+  border-radius:var(--radius);padding:22px;box-shadow:var(--shadow)}
+.panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
+.panel-title{font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:700;font-family:'Archivo'}
+.eyebrow{font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--gold);font-weight:700}
+.grid{display:grid;gap:18px}
+.view{animation:fade .4s ease}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* ---------- COMMAND CENTER HERO ---------- */
+.hero{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:18px;margin-top:4px}
+.hero-left{background:
+    radial-gradient(600px 300px at 100% 0%,rgba(63,184,245,.10),transparent 60%),
+    linear-gradient(180deg,var(--panel-2),var(--panel));
+  border:1px solid var(--line);border-radius:var(--radius);padding:26px 28px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.hero-left h1{font-size:clamp(26px,3.4vw,40px);margin:8px 0 8px}
+.hero-left h1 em{font-style:normal;color:var(--ready)}
+.hero-lead{color:var(--muted);font-size:14.5px;max-width:46ch}
+.core-wrap{display:flex;align-items:center;gap:30px;margin-top:24px;flex-wrap:wrap}
+.gauge{position:relative;width:210px;height:210px;flex-shrink:0}
+.gauge svg{transform:rotate(-90deg)}
+.gauge-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.gauge-num{font-family:'JetBrains Mono',monospace;font-size:46px;font-weight:700;line-height:1;color:var(--ink)}
+.gauge-num .pct{font-size:20px;color:var(--muted)}
+.gauge-label{font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-top:8px}
+.gauge-state{margin-top:9px;font-size:12px;font-weight:800;padding:4px 13px;border-radius:30px}
+.core-stats{display:grid;gap:11px;flex:1;min-width:200px}
+.cstat{display:flex;align-items:center;gap:13px}
+.cstat-bar{flex:1;height:8px;border-radius:6px;background:rgba(255,255,255,.07);overflow:hidden}
+.cstat-bar i{display:block;height:100%;border-radius:6px;transition:width 1.1s cubic-bezier(.2,.8,.2,1)}
+.cstat-meta{min-width:118px;font-size:12.5px;display:flex;align-items:center;gap:8px}
+.cstat-dot{width:9px;height:9px;border-radius:3px;flex-shrink:0}
+.cstat-val{margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:12.5px;color:var(--muted)}
+
+/* KPI rail (hero right) */
+.kpi-rail{display:grid;gap:14px}
+.kpi{background:linear-gradient(180deg,var(--panel-2),var(--panel));border:1px solid var(--line);
+  border-radius:var(--radius-sm);padding:16px 18px;position:relative;overflow:hidden}
+.kpi::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--accent,var(--ready))}
+.kpi-top{display:flex;align-items:center;justify-content:space-between}
+.kpi-label{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.kpi-ic{font-size:17px;opacity:.9}
+.kpi-val{font-family:'JetBrains Mono',monospace;font-size:32px;font-weight:700;margin-top:6px;line-height:1}
+.kpi-sub{font-size:12px;color:var(--faint);margin-top:5px}
+
+/* metric strip */
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:18px}
+.metric{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius-sm);padding:16px 18px}
+.metric .v{font-family:'JetBrains Mono',monospace;font-size:26px;font-weight:700}
+.metric .l{font-size:11.5px;color:var(--muted);margin-top:3px}
+.metric .c{font-size:11px;margin-top:6px;font-weight:700}
+
+/* two col */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:18px}
+.chart-box{position:relative;height:260px}
+.chart-offline{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;text-align:center;padding:18px;color:#9AA8D6;font-size:12.5px;line-height:1.5;background:rgba(255,255,255,.02);border:1px dashed rgba(255,255,255,.12);border-radius:12px}
+.chart-offline .co-ico{font-size:24px;opacity:.7}
+
+/* scope cards */
+.scope-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.scope-card{border:1px solid var(--line);border-radius:var(--radius);padding:18px;position:relative;overflow:hidden;
+  background:linear-gradient(180deg,var(--panel-2),var(--panel));transition:.2s;cursor:pointer}
+.scope-card:hover{transform:translateY(-3px);border-color:var(--line-2)}
+.scope-card .glow{position:absolute;right:-30px;top:-30px;width:120px;height:120px;border-radius:50%;
+  background:var(--sc);filter:blur(40px);opacity:.22}
+.scope-top{display:flex;align-items:center;gap:11px;position:relative}
+.scope-ic{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;font-size:18px;color:#fff;background:var(--sc)}
+.scope-name{font-family:'Fraunces',serif;font-weight:700;font-size:16px}
+.scope-meta{font-size:11.5px;color:var(--muted)}
+.scope-ring{margin-left:auto;font-family:'JetBrains Mono',monospace;font-weight:700;font-size:20px}
+.scope-prog{height:9px;border-radius:6px;background:rgba(255,255,255,.07);overflow:hidden;margin-top:15px}
+.scope-prog i{display:block;height:100%;background:var(--sc);border-radius:6px;transition:width 1s}
+.scope-foot{display:flex;justify-content:space-between;margin-top:11px;font-size:11.5px;color:var(--muted)}
+
+/* area heat */
+.area-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:12px}
+.area-cell{border:1px solid var(--line);border-radius:var(--radius-sm);padding:14px;background:var(--panel);transition:.18s;cursor:pointer;position:relative;overflow:hidden}
+.area-cell:hover{transform:translateY(-2px);border-color:var(--line-2)}
+.area-cell .tag{font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);font-weight:700}
+.area-cell .nm{font-weight:700;font-size:14px;margin:3px 0 11px;line-height:1.2}
+.area-ring{display:flex;align-items:center;gap:9px}
+.mini-ring{width:38px;height:38px;flex-shrink:0}
+.area-pct{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:17px}
+.area-tasks{font-size:11px;color:var(--muted)}
+
+/* activity feed */
+.feed{display:grid;gap:2px;max-height:340px;overflow-y:auto}
+.feed-item{display:flex;gap:13px;padding:11px 4px;border-bottom:1px solid var(--line)}
+.feed-item:last-child{border:none}
+.feed-ic{width:32px;height:32px;border-radius:9px;display:grid;place-items:center;font-size:14px;flex-shrink:0}
+.feed-txt{font-size:13px}
+.feed-txt b{font-weight:700}
+.feed-time{font-size:11px;color:var(--faint);margin-top:2px}
+
+/* ---------- TABLE / TASK LIST ---------- */
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
+.toolbar select,.toolbar input{padding:9px 13px;background:var(--panel);border:1px solid var(--line-2);
+  border-radius:10px;color:var(--ink)}
+.toolbar input:focus,.toolbar select:focus{outline:none;border-color:var(--sc-structural)}
+.toolbar .grow{flex:1;min-width:160px}
+.btn{padding:10px 16px;border-radius:10px;font-weight:700;font-size:13px;transition:.18s;display:inline-flex;align-items:center;gap:7px}
+.btn-primary{background:linear-gradient(120deg,var(--ready),#0e9e64);color:#021b10}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 12px 26px -12px var(--ready)}
+.btn-ghost{background:var(--panel);border:1px solid var(--line-2);color:var(--ink)}
+.btn-ghost:hover{background:var(--panel-2)}
+.btn-gold{background:linear-gradient(120deg,var(--gold),#e09a1f);color:#231600}
+
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead th{text-align:left;padding:11px 12px;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--muted);font-weight:700;border-bottom:1px solid var(--line-2);position:sticky;top:0;background:var(--panel-2)}
+tbody td{padding:12px;border-bottom:1px solid var(--line);vertical-align:middle}
+tbody tr{transition:.12s}
+tbody tr:hover{background:rgba(255,255,255,.025)}
+.tb-task{font-weight:600;max-width:280px}
+.tb-task small{display:block;color:var(--faint);font-weight:400;font-size:11px;margin-top:2px}
+.chip{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:30px;font-size:11px;font-weight:700;white-space:nowrap}
+.chip-dot{width:7px;height:7px;border-radius:50%}
+.scope-chip{padding:3px 10px;border-radius:8px;font-size:11px;font-weight:700;color:#fff}
+.status-cell{display:flex;align-items:center;gap:8px}
+.prog-mini{width:60px;height:6px;border-radius:4px;background:rgba(255,255,255,.08);overflow:hidden}
+.prog-mini i{display:block;height:100%;border-radius:4px}
+.priority-flag{font-size:11px;font-weight:800;padding:2px 9px;border-radius:7px}
+
+/* ---------- FORM ---------- */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.field{display:flex;flex-direction:column;gap:7px}
+.field.full{grid-column:1/-1}
+.field label{font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.field label .req{color:var(--danger)}
+.field input,.field select,.field textarea{padding:11px 13px;background:var(--bg-2);border:1px solid var(--line-2);
+  border-radius:10px;color:var(--ink);width:100%}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--sc-structural);background:var(--panel)}
+.field textarea{resize:vertical;min-height:74px}
+.field .hint{font-size:11px;color:var(--faint)}
+.orsvai-fields{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;grid-column:1/-1;
+  background:var(--bg-2);border:1px solid var(--line);border-radius:12px;padding:16px}
+.orsvai-fields .of{display:flex;flex-direction:column;gap:6px}
+.of label{display:flex;align-items:center;gap:7px;font-size:11px;font-weight:800;letter-spacing:.04em}
+.of .badge{width:20px;height:20px;border-radius:6px;display:grid;place-items:center;color:#fff;font-size:11px;font-weight:900;font-family:'Fraunces',serif}
+.of input{padding:9px 11px;background:var(--panel);border:1px solid var(--line-2);border-radius:8px;color:var(--ink);font-size:12.5px}
+.form-actions{grid-column:1/-1;display:flex;gap:11px;justify-content:flex-end;margin-top:4px}
+
+/* ---------- ORSVAI MATRIX ---------- */
+.orsvai-legend{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px}
+.ol{display:flex;align-items:center;gap:9px;background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:9px 13px;flex:1;min-width:150px}
+.ol .badge{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;color:#fff;font-weight:900;font-family:'Fraunces',serif;font-size:15px;flex-shrink:0}
+.ol .t{font-size:12px;font-weight:700}
+.ol .d{font-size:10.5px;color:var(--muted)}
+.orsvai-score-key{display:flex;gap:10px;flex-wrap:wrap;margin:16px 0}
+.osk{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;padding:7px 13px;border-radius:9px;background:var(--panel);border:1px solid var(--line)}
+.osk .dot{width:9px;height:9px;border-radius:50%}
+.role-pill{display:inline-flex;align-items:center;gap:5px;padding:2px 8px;border-radius:7px;font-size:11px;font-weight:600;margin:1px}
+.role-pill b{width:15px;height:15px;border-radius:4px;display:grid;place-items:center;color:#fff;font-size:9px;font-weight:900;font-family:'Fraunces',serif}
+
+/* ---------- GAMIFICATION ---------- */
+.gami-hero{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.podium{display:flex;align-items:flex-end;justify-content:center;gap:14px;padding:20px 10px 6px}
+.pod{flex:1;max-width:130px;text-align:center}
+.pod-av{width:62px;height:62px;border-radius:50%;margin:0 auto 10px;display:grid;place-items:center;
+  font-family:'Fraunces',serif;font-weight:900;font-size:24px;color:#0a0a0a;position:relative}
+.pod-av .crown{position:absolute;top:-18px;left:50%;transform:translateX(-50%);font-size:20px}
+.pod-name{font-size:12.5px;font-weight:700;line-height:1.2}
+.pod-xp{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--gold);margin-top:3px}
+.pod-stand{margin-top:11px;border-radius:11px 11px 0 0;display:grid;place-items:center;
+  font-family:'Fraunces',serif;font-weight:900;font-size:26px;color:rgba(255,255,255,.9)}
+.lb-row{display:flex;align-items:center;gap:14px;padding:13px;border:1px solid var(--line);border-radius:12px;
+  margin-bottom:9px;background:var(--panel);transition:.16s}
+.lb-row:hover{border-color:var(--line-2);transform:translateX(3px)}
+.lb-rank{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:16px;width:30px;color:var(--muted)}
+.lb-av{width:42px;height:42px;border-radius:11px;display:grid;place-items:center;font-family:'Fraunces',serif;font-weight:900;color:#fff;font-size:16px;flex-shrink:0}
+.lb-info{flex:1;min-width:0}
+.lb-name{font-weight:700;font-size:14px}
+.lb-lead{font-size:11.5px;color:var(--muted)}
+.lb-bar{height:7px;border-radius:5px;background:rgba(255,255,255,.07);margin-top:7px;overflow:hidden}
+.lb-bar i{display:block;height:100%;border-radius:5px;background:linear-gradient(90deg,var(--gold),#f6d743)}
+.lb-right{text-align:right;flex-shrink:0}
+.lb-xp{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:16px;color:var(--gold)}
+.lb-level{font-size:11px;color:var(--muted)}
+.lvl-tag{font-size:10px;font-weight:800;padding:2px 8px;border-radius:20px;background:var(--gold-soft);color:var(--gold);letter-spacing:.04em}
+
+.badge-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:13px}
+.ach{border:1px solid var(--line);border-radius:14px;padding:17px;text-align:center;background:var(--panel);position:relative;transition:.2s}
+.ach.locked{opacity:.42;filter:grayscale(.6)}
+.ach.unlocked{border-color:var(--gold-soft)}
+.ach.unlocked:hover{transform:translateY(-3px);box-shadow:0 14px 30px -16px var(--gold)}
+.ach-ic{font-size:34px;margin-bottom:9px;filter:drop-shadow(0 4px 8px rgba(0,0,0,.4))}
+.ach-name{font-weight:800;font-size:12.5px;font-family:'Fraunces',serif}
+.ach-desc{font-size:10.5px;color:var(--muted);margin-top:4px;line-height:1.35}
+.ach-status{margin-top:9px;font-size:10px;font-weight:800;letter-spacing:.05em;text-transform:uppercase}
+.ach.unlocked .ach-status{color:var(--gold)}
+.ach.locked .ach-status{color:var(--faint)}
+
+/* ---------- MODAL ---------- */
+.modal-bg{position:fixed;inset:0;z-index:200;background:rgba(5,9,28,.72);backdrop-filter:blur(6px);
+  display:flex;align-items:center;justify-content:center;padding:22px;animation:fade .2s}
+.modal{width:100%;max-width:560px;max-height:88vh;overflow-y:auto;background:linear-gradient(180deg,var(--panel-2),var(--panel));
+  border:1px solid var(--line-2);border-radius:18px;padding:26px;box-shadow:var(--shadow)}
+.modal-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:16px}
+.modal-head h3{font-size:20px}
+.modal-x{font-size:22px;color:var(--muted);width:30px;height:30px;border-radius:8px}
+.modal-x:hover{background:var(--panel-3);color:var(--ink)}
+.detail-row{display:flex;justify-content:space-between;gap:14px;padding:11px 0;border-bottom:1px solid var(--line);font-size:13.5px}
+.detail-row .k{color:var(--muted);font-weight:600}
+.detail-row .val{text-align:right;font-weight:600}
+
+/* toast */
+#toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(120px);z-index:300;
+  background:linear-gradient(120deg,var(--panel-3),var(--panel-2));border:1px solid var(--line-2);
+  border-radius:13px;padding:14px 20px;display:flex;align-items:center;gap:12px;box-shadow:var(--shadow);
+  transition:transform .4s cubic-bezier(.2,1,.3,1);max-width:90vw}
+#toast.show{transform:translateX(-50%) translateY(0)}
+#toast .ic{font-size:22px}
+#toast .msg{font-size:13.5px;font-weight:600}
+#toast .sub{font-size:11.5px;color:var(--muted)}
+
+/* xp burst */
+.xp-burst{position:fixed;z-index:400;font-family:'JetBrains Mono',monospace;font-weight:700;font-size:20px;
+  color:var(--gold);pointer-events:none;animation:rise 1.3s ease forwards;text-shadow:0 2px 10px rgba(246,183,67,.6)}
+@keyframes rise{0%{opacity:0;transform:translateY(0) scale(.6)}20%{opacity:1;transform:translateY(-10px) scale(1.1)}100%{opacity:0;transform:translateY(-70px) scale(1)}}
+
+/* footer */
+.footer{margin-top:40px;padding-top:22px;border-top:1px solid var(--line);display:flex;justify-content:space-between;
+  align-items:center;flex-wrap:wrap;gap:14px;color:var(--faint);font-size:12px}
+.footer .gb{font-family:'Fraunces',serif;font-weight:900;color:var(--muted);letter-spacing:.05em}
+
+/* empty */
+.empty{text-align:center;padding:50px 20px;color:var(--muted)}
+.empty .e-ic{font-size:42px;margin-bottom:12px;opacity:.5}
+.empty h3{font-size:18px;margin-bottom:6px}
+
+/* responsive */
+@media(max-width:980px){
+  .hero{grid-template-columns:1fr}
+  .two-col,.gami-hero{grid-template-columns:1fr}
+  .scope-grid{grid-template-columns:1fr 1fr}
+  .metrics{grid-template-columns:1fr 1fr}
+}
+@media(max-width:620px){
+  .scope-grid,.metrics{grid-template-columns:1fr}
+  .form-grid,.orsvai-fields{grid-template-columns:1fr}
+  .shell{padding:0 14px 60px}
+  .topbar{padding:12px 14px}
+  .core-wrap{flex-direction:column;align-items:flex-start}
+  .gauge{margin:0 auto}
+  .table-scroll{overflow-x:auto}
+  table{min-width:680px}
+}
+.table-scroll{overflow-x:auto}
+</style>
+</head>
+<body>
+
+<!-- ===== LOGIN GATE ===== -->
+<div id="gate">
+  <div class="gate-card">
+    <div class="gate-mark">Good &amp; Fast Packaging</div>
+    <h1>Nirapon Readiness Core</h1>
+    <p>Safety-audit readiness command center. Enter your access key to continue.</p>
+    <input type="password" id="gatePass" placeholder="Access key" autocomplete="off"
+      onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="gate-btn" onclick="doLogin()">Unlock dashboard</button>
+    <div class="gate-err" id="gateErr"></div>
+    <div class="gate-hint">Team key opens the full board · Admin key unlocks data reset &amp; sync.<br>
+    Default team key: <b>nirapon2026</b> — change it in the script before deploying.</div>
+  </div>
+</div>
+
+<!-- ===== APP ===== -->
+<div id="app" class="hidden">
+  <div class="topbar">
+    <div class="topbar-in">
+      <div class="brand">
+        <div class="brand-logo">N</div>
+        <div>
+          <div class="brand-name">Nirapon Readiness Core</div>
+          <div class="brand-sub">Good &amp; Fast Packaging · Audit Command</div>
+        </div>
+      </div>
+      <div class="top-meta">
+        <div class="top-status"><span class="live-dot"></span><span id="syncStatus">Local · live</span></div>
+        <button class="icon-btn" title="Sync to cloud" onclick="syncCloud()">☁</button>
+        <button class="icon-btn" title="Export data" onclick="exportData()">⬇</button>
+        <button class="icon-btn" id="adminBtn" title="Admin tools" onclick="adminTools()">⚙</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="shell">
+    <div class="tabs" id="tabs"></div>
+    <div id="views"></div>
+
+    <div class="footer">
+      <div>Built for Nirapon structural · fire · electrical · boiler safety readiness — aligned to NTPA &amp; BNBC.</div>
+      <div class="gb">guulba — technology for better performance</div>
+    </div>
+  </div>
+</div>
+
+<div id="modalMount"></div>
+<div id="toast"><span class="ic">✓</span><div><div class="msg"></div><div class="sub"></div></div></div>
+
+<script>
+/* =====================================================================
+   NIRAPON READINESS CORE — data, engine, and UI
+   Single-file SPA · localStorage + optional Apps Script sync
+   ===================================================================== */
+
+/* ---------- CONFIG ---------- */
+const CONFIG = {
+  // Set to your Apps Script Web App URL to enable cloud sync (see Code.gs / README)
+  APPS_SCRIPT_URL: "",
+  // Must match SYNC_TOKEN in Code.gs — guards cloud writes
+  SYNC_TOKEN: "gnf-nirapon-sync-2026",
+  // SHA-256 of access keys. Defaults: team="nirapon2026", admin="gnf-admin"
+  TEAM_HASH:  "b6edf0171f28231bb8a1a412024d394cfcf3f14d444bab23ce846d1c1cf57e44",
+  ADMIN_HASH: "04f6f64e0cf01c94fd81b970eebeac188d41d7a43a492a6e2bd9f564521463b1",
+  STORE_KEY: "nirapon_core_v1",
+  PASS_THRESHOLD: 90  // readiness % needed to be "audit ready"
+};
+let ROLE = "team"; // or "admin"
+
+/* ---------- DOMAINS ---------- */
+const AREAS = [
+  {name:"Printing",            type:"Building", prod:"Production",     floors:"4 Storey",    area:87261, year:"2022"},
+  {name:"Elastic",             type:"Shed",     prod:"Production",     floors:"Ground only", area:89384, year:"2023-24"},
+  {name:"Yarn Dyeing",         type:"Shed",     prod:"Production",     floors:"Ground only", area:81264, year:"2023-24"},
+  {name:"Utility",             type:"Building", prod:"Non-Production", floors:"4 Storey",    area:14633, year:"2023-24"},
+  {name:"Canteen",             type:"Building", prod:"Non-Production", floors:"4 Storey",    area:25469, year:"2023-24"},
+  {name:"Security Building",   type:"Building", prod:"Non-Production", floors:"2 Storey",    area:2105,  year:"2023-24"},
+  {name:"Warehouse",           type:"Shed",     prod:"Non-Production", floors:"Ground only", area:16348, year:"2023-24"},
+  {name:"Warehouse Operation", type:"Shed",     prod:"Non-Production", floors:"Ground only", area:7219,  year:"2023-24"},
+  {name:"Chemical Warehouse",  type:"Building", prod:"Non-Production", floors:"Ground only", area:5125,  year:"2023-24"},
+  {name:"WTP & Fire Pump",     type:"Building", prod:"Non-Production", floors:"Ground only", area:4530,  year:"2023-24"},
+  {name:"Boiler",              type:"Building", prod:"Non-Production", floors:"Ground only", area:2538,  year:"2023-24"},
+  {name:"Workshop",            type:"Building", prod:"Non-Production", floors:"Ground only", area:1615,  year:"2023-24"},
+  {name:"CNG Station",         type:"Building", prod:"Non-Production", floors:"Ground only", area:2284,  year:"2023-24"},
+  {name:"ETP",                 type:"Building", prod:"Non-Production", floors:"Ground only", area:11544, year:"2023-24"},
+  {name:"Transformer Room",    type:"Building", prod:"Non-Production", floors:"Ground only", area:403,   year:"2023-24"}
+];
+
+const SCOPES = {
+  "Structural":        {color:"var(--sc-structural)", hex:"#3FB8F5", icon:"🏗️", std:"NTPA · BNBC 2020 Part 6", desc:"Load-bearing integrity, retrofit & DEA"},
+  "Fire":              {color:"var(--sc-fire)",       hex:"#FF4D6A", icon:"🔥", std:"NFPA · BNBC Part 4",     desc:"Detection, suppression, egress"},
+  "Electrical":        {color:"var(--sc-electrical)", hex:"#FBC02D", icon:"⚡", std:"IEC · NFPA 70 · NTPA",   desc:"Earthing, panels, LPS, cabling"},
+  "Boiler":            {color:"var(--sc-boiler)",     hex:"#B18CFF", icon:"♨️", std:"Boiler Act · PESO",      desc:"Pressure vessels, valves, CNG"},
+  "Safety Management": {color:"var(--sc-mgmt)",       hex:"#2DD4BF", icon:"🛡️", std:"Labour Act · Worker Cmte",desc:"Committees, training, drills, PPE"},
+  "Documentation":     {color:"var(--sc-docs)",       hex:"#8B9DFF", icon:"📋", std:"DIFE · Fire Service NOC", desc:"Drawings, certificates, CAP log"}
+};
+const SCOPE_KEYS = Object.keys(SCOPES);
+
+const DEPTS = ["Engineering & Maintenance","EHS / Fire Safety","Electrical","Civil / Structural","Boiler & Utility","HR & Admin","Compliance","Procurement"];
+const STATUSES = {
+  "Not Started":{score:0,  color:"var(--danger)",  hex:"#FF4D6A"},
+  "Delayed":    {score:50, color:"var(--warn)",    hex:"#FF8A3D"},
+  "In Progress":{score:75, color:"var(--sc-structural)", hex:"#3FB8F5"},
+  "Completed":  {score:100,color:"var(--ready)",   hex:"#15C57E"}
+};
+const PRIORITIES = {"Critical":"#FF4D6A","High":"#FF8A3D","Medium":"#FBC02D","Low":"#8B9DFF"};
+const ORSVAI = {
+  O:{name:"Owner",       color:"var(--o)", hex:"#3B82F6", desc:"Sets direction, owns the result"},
+  R:{name:"Responsible", color:"var(--r)", hex:"#22A95B", desc:"Executes the task"},
+  S:{name:"Support",     color:"var(--s)", hex:"#F2811D", desc:"Provides tools, manpower, budget"},
+  V:{name:"Verify",      color:"var(--v)", hex:"#8B5CF6", desc:"Audits & confirms compliance"},
+  A:{name:"Approve",     color:"var(--a)", hex:"#11A89A", desc:"Authorizes & signs off"},
+  I:{name:"Inform",      color:"var(--i)", hex:"#4F8DF7", desc:"Kept updated on progress"}
+};
+
+/* gamification: teams = departments; each has a leader */
+const TEAM_META = {
+  "Engineering & Maintenance":{leader:"Maintenance Head",  av:"⚙", color:"#3FB8F5"},
+  "EHS / Fire Safety":        {leader:"EHS Manager",       av:"🔥", color:"#FF4D6A"},
+  "Electrical":               {leader:"Electrical Engineer",av:"⚡", color:"#FBC02D"},
+  "Civil / Structural":       {leader:"Civil Engineer",    av:"🏗", color:"#8B9DFF"},
+  "Boiler & Utility":         {leader:"Boiler In-charge",  av:"♨", color:"#B18CFF"},
+  "HR & Admin":               {leader:"HR Head",           av:"🧭", color:"#2DD4BF"},
+  "Compliance":               {leader:"Compliance Manager",av:"🛡", color:"#15C57E"},
+  "Procurement":              {leader:"Procurement Lead",  av:"📦", color:"#F6B743"}
+};
+
+/* achievement / badge catalogue — each has a test(team, ctx) */
+const ACHIEVEMENTS = [
+  {id:"first_close", icon:"🎯", name:"First Close",    desc:"Complete & verify your first task", xp:50,
+    test:t=>t.verified>=1},
+  {id:"streak10",    icon:"🔟", name:"Ten Down",       desc:"Verify 10 tasks", xp:120,
+    test:t=>t.verified>=10},
+  {id:"fire_marshal",icon:"🚒", name:"Fire Marshal",   desc:"Close every Fire-scope task you own", xp:200,
+    test:t=>t.byScope["Fire"] && t.byScope["Fire"].total>0 && t.byScope["Fire"].done===t.byScope["Fire"].total},
+  {id:"sentinel",    icon:"🛡️", name:"Structural Sentinel", desc:"Close every Structural task you own", xp:200,
+    test:t=>t.byScope["Structural"] && t.byScope["Structural"].total>0 && t.byScope["Structural"].done===t.byScope["Structural"].total},
+  {id:"sparks",      icon:"⚡", name:"Spark Tamer",    desc:"Close every Electrical task you own", xp:200,
+    test:t=>t.byScope["Electrical"] && t.byScope["Electrical"].total>0 && t.byScope["Electrical"].done===t.byScope["Electrical"].total},
+  {id:"no_delay",    icon:"⏱️", name:"Zero Delays",    desc:"Hold 5+ tasks with none delayed", xp:150,
+    test:t=>t.total>=5 && t.delayed===0},
+  {id:"on_fire",     icon:"🔥", name:"On a Roll",      desc:"Reach 75% team readiness", xp:180,
+    test:t=>t.readiness>=75},
+  {id:"audit_ready", icon:"🏆", name:"Audit Ready",    desc:"Reach 90% team readiness", xp:300,
+    test:t=>t.readiness>=90},
+  {id:"perfect",     icon:"💎", name:"Flawless",       desc:"100% team readiness", xp:500,
+    test:t=>t.readiness>=100},
+  {id:"verifier",    icon:"🔍", name:"Verified True",  desc:"Get 3 of your tasks fully verified", xp:120,
+    test:t=>t.verified>=3}
+];
+
+/* level thresholds */
+const LEVELS = [
+  {min:0,    name:"Trainee",   tag:"LVL 1"},
+  {min:300,  name:"Operator",  tag:"LVL 2"},
+  {min:700,  name:"Marshal",   tag:"LVL 3"},
+  {min:1300, name:"Captain",   tag:"LVL 4"},
+  {min:2200, name:"Guardian",  tag:"LVL 5"},
+  {min:3500, name:"Sentinel",  tag:"LVL 6"}
+];
+function levelOf(xp){let l=LEVELS[0];for(const lv of LEVELS){if(xp>=lv.min)l=lv;}return l;}
+function nextLevel(xp){for(const lv of LEVELS){if(xp<lv.min)return lv;}return null;}
+
+/* =====================================================================
+   SEED DATA — realistic Nirapon prep tasks across all areas & scopes
+   ===================================================================== */
+const TASK_LIBRARY = {
+  "Structural":[
+    ["Detailed Engineering Assessment (DEA) report","Civil / Structural"],
+    ["Retrofitting of flagged columns & beams","Civil / Structural"],
+    ["Storage / imposed load posting on each floor","Civil / Structural"],
+    ["Crack mapping survey & repair","Civil / Structural"],
+    ["Mezzanine / roof load verification","Civil / Structural"],
+    ["Soil test & foundation review report","Civil / Structural"]
+  ],
+  "Fire":[
+    ["Addressable fire detection & alarm system","EHS / Fire Safety"],
+    ["Fire pump set commissioning (diesel+electric+jockey)","Engineering & Maintenance"],
+    ["90-min fire-rated stairwell doors","EHS / Fire Safety"],
+    ["Emergency exit signage & illumination","EHS / Fire Safety"],
+    ["Hydrant network & hose reel coverage","Engineering & Maintenance"],
+    ["ABC extinguisher placement & servicing","EHS / Fire Safety"],
+    ["Means-of-egress / exit width compliance","Civil / Structural"],
+    ["Quarterly fire drill & evacuation records","EHS / Fire Safety"]
+  ],
+  "Electrical":[
+    ["Earth-pit resistance test & grounding","Electrical"],
+    ["Lightning protection system (LPS) audit","Electrical"],
+    ["LT/HT switchgear & DB inspection","Electrical"],
+    ["Thermographic (IR) scan of panels","Electrical"],
+    ["Cable shaft / riser fire-stopping","Electrical"],
+    ["RCD / circuit breaker installation","Electrical"],
+    ["Single-line diagram & DB labeling","Electrical"]
+  ],
+  "Boiler":[
+    ["Boiler safety valve calibration","Boiler & Utility"],
+    ["Boiler registration & competency certificate","Boiler & Utility"],
+    ["Pressure vessel inspection","Boiler & Utility"],
+    ["CNG line leak detection & safety","Boiler & Utility"],
+    ["Chimney & emission compliance","Boiler & Utility"]
+  ],
+  "Safety Management":[
+    ["Safety committee formation & monthly minutes","Compliance"],
+    ["Worker fire & first-aid training batches","HR & Admin"],
+    ["PPE issue & compliance log","HR & Admin"],
+    ["Emergency Response Team (ERT) roster","EHS / Fire Safety"],
+    ["First-aid boxes & trained first-aiders","HR & Admin"],
+    ["Amader Kotha helpline awareness","Compliance"],
+    ["Incident reporting & near-miss log","EHS / Fire Safety"]
+  ],
+  "Documentation":[
+    ["Fire Service NOC & safety plan","Compliance"],
+    ["Approved structural design drawings","Civil / Structural"],
+    ["Electrical test certificates dossier","Electrical"],
+    ["Boiler certificate & operator license","Boiler & Utility"],
+    ["DIFE / RAJUK approval set","Compliance"],
+    ["Corrective Action Plan (CAP) tracker","Compliance"],
+    ["Machine layout & exit route maps","Procurement"]
+  ]
+};
+
+function seedData(){
+  const tasks=[]; let id=1;
+  const today=new Date();
+  const rnd=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+  const pick=arr=>arr[rnd(0,arr.length-1)];
+  const fmt=d=>d.toISOString().slice(0,10);
+  const addDays=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x;};
+  const people=["A. Rahman","S. Hossain","M. Karim","T. Ahmed","R. Begum","F. Islam","N. Akter","J. Uddin","K. Sultana","H. Mia"];
+
+  // every area gets a tailored mix of scopes
+  AREAS.forEach(area=>{
+    let scopeSet;
+    if(area.name==="Boiler") scopeSet=["Structural","Fire","Electrical","Boiler","Documentation"];
+    else if(area.name==="CNG Station") scopeSet=["Fire","Electrical","Boiler","Safety Management","Documentation"];
+    else if(area.name==="Transformer Room") scopeSet=["Electrical","Fire","Documentation"];
+    else if(area.name==="Chemical Warehouse") scopeSet=["Fire","Structural","Safety Management","Documentation"];
+    else if(area.prod==="Production") scopeSet=["Structural","Fire","Electrical","Safety Management","Documentation"];
+    else scopeSet=["Structural","Fire","Electrical","Safety Management","Documentation"];
+
+    scopeSet.forEach(scope=>{
+      const lib=TASK_LIBRARY[scope];
+      const n = area.prod==="Production"?rnd(2,3):rnd(1,2);
+      const chosen=[...lib].sort(()=>Math.random()-.5).slice(0,n);
+      chosen.forEach(([title,dept])=>{
+        const r=Math.random();
+        let status;
+        if(r<0.34) status="Completed";
+        else if(r<0.62) status="In Progress";
+        else if(r<0.80) status="Delayed";
+        else status="Not Started";
+        const start=addDays(today,-rnd(20,120));
+        const plan=addDays(start,rnd(20,90));
+        const completion = status==="Completed"? fmt(addDays(start,rnd(15,70))) : "";
+        const verified = status==="Completed" && Math.random()<0.78;
+        const roles={};
+        ["O","R","S","V","A","I"].forEach(k=>roles[k]=pick(people));
+        tasks.push({
+          id:"NRP-"+String(id++).padStart(3,"0"),
+          area:area.name, scope, task:title, dept,
+          startDate:fmt(start), planDate:fmt(plan), completionDate:completion,
+          status, verified,
+          priority: scope==="Fire"||scope==="Structural"?pick(["Critical","Critical","High"]):pick(["High","Medium","Medium","Low"]),
+          roles,
+          notes:"",
+          createdAt:fmt(addDays(today,-rnd(1,140)))
+        });
+      });
+    });
+  });
+  return tasks;
+}
+
+/* =====================================================================
+   STATE + STORAGE
+   ===================================================================== */
+let STATE = {tasks:[], log:[]};
+function load(){
+  try{
+    const raw=localStorage.getItem(CONFIG.STORE_KEY);
+    if(raw){STATE=JSON.parse(raw);}
+    else{STATE={tasks:seedData(),log:[{t:"Seed",d:"Demo readiness data generated from building register",ts:Date.now()}]};save();}
+  }catch(e){STATE={tasks:seedData(),log:[]};}
+}
+function save(){try{localStorage.setItem(CONFIG.STORE_KEY,JSON.stringify(STATE));}catch(e){}}
+function logEvent(t,d){STATE.log.unshift({t,d,ts:Date.now()});if(STATE.log.length>40)STATE.log.pop();}
+
+/* =====================================================================
+   COMPUTE — readiness + gamification
+   ===================================================================== */
+function scoreOf(t){ return STATUSES[t.status].score * (t.status==="Completed" && !t.verified ? 0.9 : 1); }
+function overallReadiness(){
+  if(!STATE.tasks.length) return 0;
+  return Math.round(STATE.tasks.reduce((s,t)=>s+scoreOf(t),0)/STATE.tasks.length);
+}
+function readinessFor(filterFn){
+  const ts=STATE.tasks.filter(filterFn);
+  if(!ts.length) return {pct:0,total:0,done:0,prog:0,delayed:0,notStarted:0};
+  return {
+    pct:Math.round(ts.reduce((s,t)=>s+scoreOf(t),0)/ts.length),
+    total:ts.length,
+    done:ts.filter(t=>t.status==="Completed").length,
+    prog:ts.filter(t=>t.status==="In Progress").length,
+    delayed:ts.filter(t=>t.status==="Delayed").length,
+    notStarted:ts.filter(t=>t.status==="Not Started").length
+  };
+}
+function scopeStats(){const o={};SCOPE_KEYS.forEach(s=>o[s]=readinessFor(t=>t.scope===s));return o;}
+function areaStats(){const o={};AREAS.forEach(a=>o[a.name]=readinessFor(t=>t.area===a.name));return o;}
+
+/* team / gamification stats keyed by department */
+function teamStats(){
+  const out={};
+  DEPTS.forEach(d=>{
+    const mine=STATE.tasks.filter(t=>t.dept===d);
+    const byScope={};
+    SCOPE_KEYS.forEach(s=>{
+      const ss=mine.filter(t=>t.scope===s);
+      if(ss.length) byScope[s]={total:ss.length,done:ss.filter(t=>t.status==="Completed"&&t.verified).length};
+    });
+    const verified=mine.filter(t=>t.status==="Completed"&&t.verified).length;
+    const readiness=mine.length?Math.round(mine.reduce((s,t)=>s+scoreOf(t),0)/mine.length):0;
+    // XP: 30 per completed+verified, 12 per in-progress, +priority weight, +readiness bonus
+    let xp=0;
+    mine.forEach(t=>{
+      const w = t.priority==="Critical"?1.6:t.priority==="High"?1.3:1;
+      if(t.status==="Completed"&&t.verified) xp+=Math.round(40*w);
+      else if(t.status==="Completed") xp+=Math.round(24*w);
+      else if(t.status==="In Progress") xp+=Math.round(12*w);
+    });
+    xp+=Math.round(readiness*1.5);
+    const ctx={total:mine.length,verified,delayed:mine.filter(t=>t.status==="Delayed").length,byScope,readiness};
+    // achievements
+    const unlocked=ACHIEVEMENTS.filter(a=>{try{return a.test(ctx);}catch(e){return false;}});
+    const achXp=unlocked.reduce((s,a)=>s+a.xp,0);
+    out[d]={dept:d,...TEAM_META[d],tasks:mine.length,verified,readiness,
+      xp:xp+achXp, baseXp:xp, achXp, unlocked, ctx,
+      level:levelOf(xp+achXp), next:nextLevel(xp+achXp)};
+  });
+  return out;
+}
+
+/* =====================================================================
+   HELPERS
+   ===================================================================== */
+const $=s=>document.querySelector(s);
+const el=(tag,cls,html)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(html!=null)e.innerHTML=html;return e;};
+async function sha256(str){
+  const buf=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(str));
+  return [...new Uint8Array(buf)].map(b=>b.toString(16).padStart(2,"0")).join("");
+}
+function toast(msg,sub,ic="✓"){
+  const t=$("#toast");t.querySelector(".ic").textContent=ic;
+  t.querySelector(".msg").textContent=msg;t.querySelector(".sub").textContent=sub||"";
+  t.classList.add("show");clearTimeout(t._tm);t._tm=setTimeout(()=>t.classList.remove("show"),3200);
+}
+function xpBurst(x,y,amt){
+  const b=el("div","xp-burst","+"+amt+" XP");b.style.left=x+"px";b.style.top=y+"px";
+  document.body.appendChild(b);setTimeout(()=>b.remove(),1300);
+}
+function timeAgo(ts){
+  const s=Math.floor((Date.now()-ts)/1000);
+  if(s<60)return s+"s ago";if(s<3600)return Math.floor(s/60)+"m ago";
+  if(s<86400)return Math.floor(s/3600)+"h ago";return Math.floor(s/86400)+"d ago";
+}
+function ring(pct,size,color,track="rgba(255,255,255,.09)",sw){
+  sw=sw||Math.max(4,size*0.11);const r=(size-sw)/2,c=2*Math.PI*r,off=c*(1-pct/100);
+  return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" style="transform:rotate(-90deg)">
+    <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="${track}" stroke-width="${sw}"/>
+    <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="${color}" stroke-width="${sw}"
+      stroke-linecap="round" stroke-dasharray="${c}" stroke-dashoffset="${off}"
+      style="transition:stroke-dashoffset 1s cubic-bezier(.2,.8,.2,1)"/></svg>`;
+}
+function readyState(pct){
+  if(pct>=CONFIG.PASS_THRESHOLD) return {label:"AUDIT READY",bg:"var(--ready-soft)",fg:"var(--ready)"};
+  if(pct>=70) return {label:"ON TRACK",bg:"rgba(63,184,245,.15)",fg:"var(--sc-structural)"};
+  if(pct>=45) return {label:"AT RISK",bg:"rgba(255,138,61,.15)",fg:"var(--warn)"};
+  return {label:"CRITICAL",bg:"rgba(255,77,106,.15)",fg:"var(--danger)"};
+}
+
+/* =====================================================================
+   TABS
+   ===================================================================== */
+const TABS=[
+  {id:"command", icon:"📡", label:"Command Center"},
+  {id:"entry",   icon:"➕", label:"Add Task"},
+  {id:"scope",   icon:"🧭", label:"Audit Scope"},
+  {id:"areas",   icon:"🗺️", label:"Area Map"},
+  {id:"orsvai",  icon:"🔗", label:"ORSVAI Accountability"},
+  {id:"rewards", icon:"🏆", label:"Leaderboard & Rewards"}
+];
+let CURRENT="command";
+let charts={};
+/* Defensive chart factory — if the Chart.js CDN is slow or blocked,
+   we never let a thrown ReferenceError halt the rest of the view. */
+function mkChart(sel,cfg){
+  const canvas=$(sel);
+  if(!canvas) return null;
+  if(typeof window.Chart==="undefined"){
+    const box=canvas.parentElement;
+    if(box){
+      const ph=el("div","chart-offline");
+      ph.innerHTML=`<span class="co-ico">📡</span><span>Chart library offline — connect to the internet to view this graph.</span>`;
+      canvas.style.display="none";
+      box.appendChild(ph);
+    }
+    return null;
+  }
+  try{ return new Chart(canvas,cfg); }
+  catch(e){ console.warn("Chart render failed",e); return null; }
+}
+function renderTabs(){
+  const wrap=$("#tabs");wrap.innerHTML="";
+  const open=STATE.tasks.filter(t=>t.status!=="Completed").length;
+  TABS.forEach(tb=>{
+    const b=el("button","tab"+(tb.id===CURRENT?" active":""));
+    b.innerHTML=`<span class="ti">${tb.icon}</span>${tb.label}`+
+      (tb.id==="entry"?` <span class="tab-badge">${open} open</span>`:"");
+    b.onclick=()=>{CURRENT=tb.id;renderTabs();renderView();window.scrollTo({top:0,behavior:"smooth"});};
+    wrap.appendChild(b);
+  });
+}
+function renderView(){
+  Object.values(charts).forEach(c=>{try{c.destroy();}catch(e){}});charts={};
+  const v=$("#views");v.innerHTML="";
+  ({command:viewCommand,entry:viewEntry,scope:viewScope,areas:viewAreas,orsvai:viewOrsvai,rewards:viewRewards}[CURRENT])(v);
+}
+
+/* =====================================================================
+   LOGIN
+   ===================================================================== */
+async function doLogin(){
+  const val=$("#gatePass").value.trim();
+  if(!val){$("#gateErr").textContent="Enter your access key.";return;}
+  const h=await sha256(val);
+  if(h===CONFIG.ADMIN_HASH){ROLE="admin";enter();}
+  else if(h===CONFIG.TEAM_HASH){ROLE="team";enter();}
+  else{$("#gateErr").textContent="Access key not recognised.";$("#gatePass").value="";}
+}
+function enter(){
+  $("#gate").classList.add("hidden");
+  $("#app").classList.remove("hidden");
+  if(ROLE!=="admin")$("#adminBtn").style.display="none";
+  load();renderTabs();renderView();
+}
+
+/* =====================================================================
+   VIEW: COMMAND CENTER
+   ===================================================================== */
+function viewCommand(root){
+  const v=el("div","view");
+  const overall=overallReadiness();
+  const rs=readyState(overall);
+  const sc=scopeStats(), ar=areaStats();
+  const totals=readinessFor(()=>true);
+  const critOpen=STATE.tasks.filter(t=>t.priority==="Critical"&&t.status!=="Completed").length;
+  const delayed=STATE.tasks.filter(t=>t.status==="Delayed").length;
+  const verified=STATE.tasks.filter(t=>t.status==="Completed"&&t.verified).length;
+
+  /* ---- HERO ---- */
+  const gaugeR=92, gaugeSize=210, sw=14, c=2*Math.PI*gaugeR, off=c*(1-overall/100);
+  const passAngle=(CONFIG.PASS_THRESHOLD/100)*c;
+  const hero=el("div","hero");
+  hero.innerHTML=`
+    <div class="hero-left">
+      <div class="eyebrow">Nirapon Audit · Live readiness</div>
+      <h1>The factory is <em>${overall}%</em> ready to pass.</h1>
+      <p class="hero-lead">Aggregated across ${totals.total} prep tasks spanning structural, fire, electrical, boiler,
+      management and documentation scopes — over all ${AREAS.length} buildings &amp; sheds. Pass line is ${CONFIG.PASS_THRESHOLD}%.</p>
+      <div class="core-wrap">
+        <div class="gauge">
+          <svg width="${gaugeSize}" height="${gaugeSize}" viewBox="0 0 ${gaugeSize} ${gaugeSize}">
+            <defs><linearGradient id="gg" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#3FB8F5"/><stop offset="60%" stop-color="#15C57E"/><stop offset="100%" stop-color="#15C57E"/>
+            </linearGradient></defs>
+            <circle cx="105" cy="105" r="${gaugeR}" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="${sw}"/>
+            <circle cx="105" cy="105" r="${gaugeR}" fill="none" stroke="url(#gg)" stroke-width="${sw}"
+              stroke-linecap="round" stroke-dasharray="${c}" stroke-dashoffset="${c}" id="gaugeArc"
+              style="transition:stroke-dashoffset 1.4s cubic-bezier(.2,.8,.2,1)"/>
+            <circle cx="105" cy="105" r="${gaugeR}" fill="none" stroke="var(--gold)" stroke-width="${sw+5}"
+              stroke-dasharray="2.5 ${c}" stroke-dashoffset="${-passAngle}" opacity=".9"/>
+          </svg>
+          <div class="gauge-center">
+            <div class="gauge-num" id="gaugeNum">0<span class="pct">%</span></div>
+            <div class="gauge-label">Overall readiness</div>
+            <div class="gauge-state" style="background:${rs.bg};color:${rs.fg}">${rs.label}</div>
+          </div>
+        </div>
+        <div class="core-stats" id="coreStats"></div>
+      </div>
+    </div>
+    <div class="kpi-rail">
+      <div class="kpi" style="--accent:var(--ready)">
+        <div class="kpi-top"><div class="kpi-label">Verified complete</div><div class="kpi-ic">✓</div></div>
+        <div class="kpi-val">${verified}<span style="font-size:16px;color:var(--faint)"> / ${totals.total}</span></div>
+        <div class="kpi-sub">Tasks signed off by the Verify role</div>
+      </div>
+      <div class="kpi" style="--accent:var(--danger)">
+        <div class="kpi-top"><div class="kpi-label">Critical open</div><div class="kpi-ic">⚠</div></div>
+        <div class="kpi-val">${critOpen}</div>
+        <div class="kpi-sub">Critical-priority items not yet closed</div>
+      </div>
+      <div class="kpi" style="--accent:var(--warn)">
+        <div class="kpi-top"><div class="kpi-label">Delayed</div><div class="kpi-ic">⏱</div></div>
+        <div class="kpi-val">${delayed}</div>
+        <div class="kpi-sub">Past plan date — needs escalation</div>
+      </div>
+    </div>`;
+  v.appendChild(hero);
+
+  /* core stat bars per scope */
+  const cs=hero.querySelector("#coreStats");
+  SCOPE_KEYS.forEach(s=>{
+    const d=sc[s];
+    const row=el("div","cstat");
+    row.innerHTML=`
+      <div class="cstat-meta"><span class="cstat-dot" style="background:${SCOPES[s].hex}"></span>${SCOPES[s].icon} ${s}</div>
+      <div class="cstat-bar"><i style="width:0%;background:${SCOPES[s].hex}" data-w="${d.pct}"></i></div>
+      <div class="cstat-val">${d.pct}%</div>`;
+    cs.appendChild(row);
+  });
+
+  /* metrics strip */
+  const ms=el("div","metrics");
+  const fastest=Object.entries(sc).sort((a,b)=>b[1].pct-a[1].pct)[0];
+  const slowest=Object.entries(sc).sort((a,b)=>a[1].pct-b[1].pct)[0];
+  const bestArea=Object.entries(ar).sort((a,b)=>b[1].pct-a[1].pct)[0];
+  ms.innerHTML=`
+    <div class="metric"><div class="v">${totals.total}</div><div class="l">Total prep tasks</div><div class="c" style="color:var(--ready)">${totals.done} done · ${totals.prog} in progress</div></div>
+    <div class="metric"><div class="v" style="color:${SCOPES[fastest[0]].hex}">${fastest[1].pct}%</div><div class="l">Strongest scope</div><div class="c" style="color:var(--muted)">${fastest[0]}</div></div>
+    <div class="metric"><div class="v" style="color:${SCOPES[slowest[0]].hex}">${slowest[1].pct}%</div><div class="l">Needs the most work</div><div class="c" style="color:var(--warn)">${slowest[0]}</div></div>
+    <div class="metric"><div class="v" style="color:var(--ready)">${bestArea[1].pct}%</div><div class="l">Most-ready area</div><div class="c" style="color:var(--muted)">${bestArea[0]}</div></div>`;
+  v.appendChild(ms);
+
+  /* two-col: scope chart + status doughnut */
+  const tc=el("div","two-col");
+  tc.innerHTML=`
+    <div class="panel"><div class="panel-head"><div class="panel-title">Readiness by audit scope</div></div>
+      <div class="chart-box"><canvas id="cScope"></canvas></div></div>
+    <div class="panel"><div class="panel-head"><div class="panel-title">Task status mix</div></div>
+      <div class="chart-box"><canvas id="cStatus"></canvas></div></div>`;
+  v.appendChild(tc);
+
+  /* area heatmap + activity */
+  const tc2=el("div","two-col");
+  const areaCells=AREAS.map(a=>{
+    const d=ar[a.name];const col=d.pct>=90?"var(--ready)":d.pct>=70?"var(--sc-structural)":d.pct>=45?"var(--warn)":"var(--danger)";
+    return `<div class="area-cell" onclick="openArea('${a.name.replace(/'/g,"\\'")}')">
+      <div class="tag">${a.prod==="Production"?"Production":"Support"}</div>
+      <div class="nm">${a.name}</div>
+      <div class="area-ring"><div class="mini-ring">${ring(d.pct,38,col)}</div>
+        <div><div class="area-pct" style="color:${col}">${d.pct}%</div><div class="area-tasks">${d.total} tasks</div></div></div>
+    </div>`;}).join("");
+  tc2.innerHTML=`
+    <div class="panel"><div class="panel-head"><div class="panel-title">Area readiness heatmap</div>
+      <span style="font-size:11.5px;color:var(--muted)">Tap an area for detail</span></div>
+      <div class="area-grid">${areaCells}</div></div>
+    <div class="panel"><div class="panel-head"><div class="panel-title">Activity log</div></div>
+      <div class="feed" id="feed"></div></div>`;
+  v.appendChild(tc2);
+
+  root.appendChild(v);
+
+  /* animate gauge + bars */
+  requestAnimationFrame(()=>{
+    $("#gaugeArc").style.strokeDashoffset=off;
+    cs.querySelectorAll("i[data-w]").forEach(i=>i.style.width=i.dataset.w+"%");
+    let n=0;const tgt=overall;const step=()=>{n+=Math.ceil(tgt/35)||1;if(n>=tgt)n=tgt;
+      $("#gaugeNum").innerHTML=n+'<span class="pct">%</span>';if(n<tgt)requestAnimationFrame(step);};step();
+  });
+
+  /* charts */
+  charts.scope=mkChart("#cScope",{
+    type:"bar",
+    data:{labels:SCOPE_KEYS,datasets:[{data:SCOPE_KEYS.map(s=>sc[s].pct),
+      backgroundColor:SCOPE_KEYS.map(s=>SCOPES[s].hex),borderRadius:7,barThickness:26}]},
+    options:{indexAxis:"y",plugins:{legend:{display:false},
+      tooltip:{callbacks:{label:c=>c.parsed.x+"% ready"}}},
+      scales:{x:{max:100,grid:{color:"rgba(255,255,255,.06)"},ticks:{color:"#9AA8D6",callback:v=>v+"%"}},
+        y:{grid:{display:false},ticks:{color:"#EAEFFF",font:{size:12}}}}}
+  });
+  charts.status=mkChart("#cStatus",{
+    type:"doughnut",
+    data:{labels:Object.keys(STATUSES),datasets:[{data:Object.keys(STATUSES).map(s=>STATE.tasks.filter(t=>t.status===s).length),
+      backgroundColor:Object.values(STATUSES).map(s=>s.hex),borderColor:"#131d4d",borderWidth:3}]},
+    options:{cutout:"62%",plugins:{legend:{position:"right",labels:{color:"#EAEFFF",padding:13,usePointStyle:true,font:{size:12}}}}}
+  });
+
+  /* feed */
+  const feed=$("#feed");
+  const items = STATE.log.length? STATE.log : [{t:"Ready",d:"No activity yet",ts:Date.now()}];
+  feed.innerHTML=items.map(l=>{
+    const ic=l.t==="Complete"?"✓":l.t==="Verify"?"🔍":l.t==="Add"?"➕":l.t==="Reward"?"🏆":l.t==="Update"?"✎":"●";
+    const bg=l.t==="Complete"?"var(--ready-soft)":l.t==="Reward"?"var(--gold-soft)":"rgba(63,184,245,.12)";
+    const fg=l.t==="Complete"?"var(--ready)":l.t==="Reward"?"var(--gold)":"var(--sc-structural)";
+    return `<div class="feed-item"><div class="feed-ic" style="background:${bg};color:${fg}">${ic}</div>
+      <div><div class="feed-txt">${l.d}</div><div class="feed-time">${timeAgo(l.ts)}</div></div></div>`;
+  }).join("");
+}
+function openArea(name){CURRENT="areas";renderTabs();renderView();setTimeout(()=>{const e=document.getElementById("area-"+name.replace(/[^a-z0-9]/gi,""));if(e)e.scrollIntoView({behavior:"smooth",block:"center"});},120);}
+
+/* =====================================================================
+   VIEW: ADD TASK (department entry)
+   ===================================================================== */
+function viewEntry(root){
+  const v=el("div","view");
+  v.innerHTML=`
+    <div class="panel">
+      <div class="panel-head">
+        <div><div class="eyebrow">Department entry</div>
+          <h2 style="font-size:22px;margin-top:4px">Log a Nirapon prep task</h2></div>
+      </div>
+      <p style="color:var(--muted);font-size:13.5px;margin-bottom:20px;max-width:62ch">
+        Pick the building, the audit scope it falls under, and assign accountability with the ORSVAI roles.
+        Once saved it flows straight into the Command Center, Audit Scope, Area Map and ORSVAI boards.</p>
+      <div class="form-grid" id="taskForm">
+        <div class="field"><label>Building / Area <span class="req">*</span></label>
+          <select id="f_area">${AREAS.map(a=>`<option value="${a.name}">${a.name} · ${a.prod==="Production"?"Production":"Support"}</option>`).join("")}</select></div>
+        <div class="field"><label>Audit scope <span class="req">*</span></label>
+          <select id="f_scope">${SCOPE_KEYS.map(s=>`<option value="${s}">${SCOPES[s].icon} ${s}</option>`).join("")}</select>
+          <span class="hint" id="scopeHint">${SCOPES["Structural"].std}</span></div>
+        <div class="field full"><label>Task / scope of work <span class="req">*</span></label>
+          <input id="f_task" placeholder="e.g. Addressable fire detection & alarm system" list="taskSuggest">
+          <datalist id="taskSuggest"></datalist></div>
+        <div class="field"><label>Owning department <span class="req">*</span></label>
+          <select id="f_dept">${DEPTS.map(d=>`<option>${d}</option>`).join("")}</select></div>
+        <div class="field"><label>Priority</label>
+          <select id="f_priority">${Object.keys(PRIORITIES).map(p=>`<option ${p==="High"?"selected":""}>${p}</option>`).join("")}</select></div>
+        <div class="field"><label>Start of work</label><input type="date" id="f_start"></div>
+        <div class="field"><label>Planned completion <span class="req">*</span></label><input type="date" id="f_plan"></div>
+        <div class="field"><label>Status</label>
+          <select id="f_status">${Object.keys(STATUSES).map(s=>`<option>${s}</option>`).join("")}</select></div>
+        <div class="field"><label>Actual completion date</label><input type="date" id="f_done"></div>
+
+        <div class="orsvai-fields">
+          ${["O","R","S","V","A","I"].map(k=>`
+            <div class="of"><label><span class="badge" style="background:${ORSVAI[k].hex}">${k}</span>${ORSVAI[k].name}</label>
+              <input id="f_role_${k}" placeholder="${ORSVAI[k].desc}"></div>`).join("")}
+        </div>
+
+        <div class="field full"><label>Notes</label><textarea id="f_notes" placeholder="Reference standard, CAP item, contractor, budget…"></textarea></div>
+        <div class="form-actions">
+          <button class="btn btn-ghost" onclick="renderView()">Reset</button>
+          <button class="btn btn-primary" id="saveTaskBtn">Save task &amp; earn XP</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-top:18px">
+      <div class="panel-head"><div class="panel-title">Recently logged</div>
+        <span style="font-size:11.5px;color:var(--muted)">${STATE.tasks.length} tasks on the board</span></div>
+      <div class="table-scroll"><table><thead><tr>
+        <th>ID</th><th>Task</th><th>Area</th><th>Scope</th><th>Dept</th><th>Status</th></tr></thead>
+        <tbody>${STATE.tasks.slice(-7).reverse().map(t=>rowMini(t)).join("")}</tbody></table></div>
+    </div>`;
+  root.appendChild(v);
+
+  // defaults
+  const today=new Date().toISOString().slice(0,10);
+  $("#f_start").value=today;
+  const plan=new Date();plan.setDate(plan.getDate()+30);$("#f_plan").value=plan.toISOString().slice(0,10);
+  // scope hint + task suggestions
+  const updateScope=()=>{
+    const s=$("#f_scope").value;$("#scopeHint").textContent=SCOPES[s].std;
+    $("#taskSuggest").innerHTML=(TASK_LIBRARY[s]||[]).map(([t])=>`<option value="${t}">`).join("");
+    // auto-pick a sensible default dept
+    const lib=TASK_LIBRARY[s];if(lib&&lib.length)$("#f_dept").value=lib[0][1];
+  };
+  $("#f_scope").onchange=updateScope;updateScope();
+  $("#saveTaskBtn").onclick=saveTask;
+}
+function rowMini(t){
+  const st=STATUSES[t.status];
+  return `<tr><td class="mono" style="color:var(--faint)">${t.id}</td>
+    <td class="tb-task">${t.task}</td><td>${t.area}</td>
+    <td><span class="scope-chip" style="background:${SCOPES[t.scope].hex}">${t.scope}</span></td>
+    <td style="font-size:12px;color:var(--muted)">${t.dept}</td>
+    <td><span class="chip" style="background:${st.color}22;color:${st.hex}"><span class="chip-dot" style="background:${st.hex}"></span>${t.status}</span></td></tr>`;
+}
+function saveTask(){
+  const g=id=>$(id).value.trim();
+  const task=g("#f_task"),plan=g("#f_plan");
+  if(!task){toast("Task needs a name","Describe the scope of work first","⚠");return;}
+  if(!plan){toast("Planned date required","Set when this should be done by","⚠");return;}
+  const roles={};["O","R","S","V","A","I"].forEach(k=>roles[k]=g("#f_role_"+k)||"—");
+  const status=g("#f_status");
+  const id="NRP-"+String(STATE.tasks.length+1).padStart(3,"0");
+  const t={id,area:g("#f_area"),scope:g("#f_scope"),task,dept:g("#f_dept"),
+    priority:g("#f_priority"),startDate:g("#f_start"),planDate:plan,
+    completionDate:g("#f_done"),status,verified:false,roles,notes:g("#f_notes"),
+    createdAt:new Date().toISOString().slice(0,10)};
+  STATE.tasks.push(t);
+  logEvent("Add",`<b>${t.dept}</b> logged "${task}" for ${t.area} <span style="color:var(--faint)">(${t.scope})</span>`);
+  save();
+  const xp=t.priority==="Critical"?25:t.priority==="High"?18:12;
+  const r=$("#saveTaskBtn").getBoundingClientRect();
+  xpBurst(r.left+r.width/2,r.top,xp);
+  toast("Task added to the board",`${t.dept} +${xp} XP · ${t.area} · ${t.scope}`,"🎯");
+  renderTabs();renderView();
+}
+
+/* =====================================================================
+   VIEW: AUDIT SCOPE
+   ===================================================================== */
+function viewScope(root){
+  const v=el("div","view");
+  const sc=scopeStats();
+  v.innerHTML=`<div class="panel" style="margin-bottom:18px">
+    <div class="panel-head"><div><div class="eyebrow">Nirapon scopes</div>
+      <h2 style="font-size:22px;margin-top:4px">Readiness by audit scope</h2></div></div>
+    <p style="color:var(--muted);font-size:13.5px;max-width:64ch">Every prep task rolls up into one of the six scopes a
+    Nirapon assessor evaluates. Tap a scope to see its task list.</p>
+    <div class="scope-grid" style="margin-top:20px" id="scopeCards"></div></div>
+    <div id="scopeDetail"></div>`;
+  root.appendChild(v);
+  const cards=v.querySelector("#scopeCards");
+  SCOPE_KEYS.forEach(s=>{
+    const d=sc[s];const card=el("div","scope-card");card.style.setProperty("--sc",SCOPES[s].hex);
+    card.innerHTML=`<div class="glow"></div>
+      <div class="scope-top"><div class="scope-ic" style="--sc:${SCOPES[s].hex}">${SCOPES[s].icon}</div>
+        <div><div class="scope-name">${s}</div><div class="scope-meta">${SCOPES[s].std}</div></div>
+        <div class="scope-ring" style="color:${SCOPES[s].hex}">${d.pct}%</div></div>
+      <div class="scope-prog"><i style="width:0%;background:${SCOPES[s].hex}" data-w="${d.pct}"></i></div>
+      <div class="scope-foot"><span>${SCOPES[s].desc}</span><span>${d.done}/${d.total} closed</span></div>`;
+    card.onclick=()=>showScopeDetail(s);
+    cards.appendChild(card);
+  });
+  requestAnimationFrame(()=>cards.querySelectorAll("i[data-w]").forEach(i=>i.style.width=i.dataset.w+"%"));
+  showScopeDetail(SCOPE_KEYS[0]);
+
+  function showScopeDetail(s){
+    const ts=STATE.tasks.filter(t=>t.scope===s).sort((a,b)=>STATUSES[a.status].score-STATUSES[b.status].score);
+    const d=$("#scopeDetail");
+    d.innerHTML=`<div class="panel"><div class="panel-head">
+      <div style="display:flex;align-items:center;gap:11px"><div class="scope-ic" style="--sc:${SCOPES[s].hex};width:34px;height:34px">${SCOPES[s].icon}</div>
+        <div><div class="panel-title" style="color:${SCOPES[s].hex}">${s} · ${ts.length} tasks</div>
+        <div style="font-size:11.5px;color:var(--muted)">${SCOPES[s].std}</div></div></div></div>
+      <div class="table-scroll"><table><thead><tr>
+        <th>ID</th><th>Task</th><th>Area</th><th>Owner dept</th><th>Plan date</th><th>Priority</th><th>Status / progress</th><th></th>
+      </tr></thead><tbody>${ts.map(t=>taskRow(t)).join("")}</tbody></table></div></div>`;
+  }
+  window._showScopeDetail=showScopeDetail;
+}
+
+function taskRow(t){
+  const st=STATUSES[t.status];const overdue=t.status!=="Completed"&&t.planDate&&t.planDate<new Date().toISOString().slice(0,10);
+  return `<tr>
+    <td class="mono" style="color:var(--faint)">${t.id}</td>
+    <td class="tb-task">${t.task}${t.verified?' <span title="Verified" style="color:var(--v)">🔍</span>':""}</td>
+    <td style="font-size:12.5px">${t.area}</td>
+    <td style="font-size:12px;color:var(--muted)">${t.dept}</td>
+    <td class="mono" style="font-size:12px;color:${overdue?"var(--danger)":"var(--muted)"}">${t.planDate||"—"}</td>
+    <td><span class="priority-flag" style="background:${PRIORITIES[t.priority]}22;color:${PRIORITIES[t.priority]}">${t.priority}</span></td>
+    <td><div class="status-cell"><span class="chip" style="background:${st.color}22;color:${st.hex}">
+      <span class="chip-dot" style="background:${st.hex}"></span>${t.status}</span>
+      <div class="prog-mini"><i style="width:${st.score}%;background:${st.hex}"></i></div></div></td>
+    <td><button class="btn btn-ghost" style="padding:6px 12px;font-size:12px" onclick="openTask('${t.id}')">Open</button></td>
+  </tr>`;
+}
+
+/* =====================================================================
+   VIEW: AREA MAP
+   ===================================================================== */
+function viewAreas(root){
+  const v=el("div","view");
+  const ar=areaStats();
+  const totalArea=AREAS.reduce((s,a)=>s+a.area,0);
+  v.innerHTML=`<div class="panel" style="margin-bottom:18px">
+    <div class="panel-head"><div><div class="eyebrow">Building register</div>
+      <h2 style="font-size:22px;margin-top:4px">Readiness across ${AREAS.length} buildings &amp; sheds</h2></div>
+      <span style="font-size:12px;color:var(--muted)">${totalArea.toLocaleString()} sqf total</span></div>
+    <div class="chart-box" style="height:230px"><canvas id="cAreas"></canvas></div></div>
+    <div id="areaPanels"></div>`;
+  root.appendChild(v);
+
+  charts.areas=mkChart("#cAreas",{
+    type:"bar",
+    data:{labels:AREAS.map(a=>a.name),datasets:[{data:AREAS.map(a=>ar[a.name].pct),
+      backgroundColor:AREAS.map(a=>{const p=ar[a.name].pct;return p>=90?"#15C57E":p>=70?"#3FB8F5":p>=45?"#FF8A3D":"#FF4D6A";}),
+      borderRadius:6}]},
+    options:{plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.parsed.y+"% ready · "+ar[AREAS[c.dataIndex].name].total+" tasks"}}},
+      scales:{x:{grid:{display:false},ticks:{color:"#9AA8D6",font:{size:10},maxRotation:55,minRotation:45}},
+        y:{max:100,grid:{color:"rgba(255,255,255,.06)"},ticks:{color:"#9AA8D6",callback:v=>v+"%"}}}}
+  });
+
+  const wrap=v.querySelector("#areaPanels");
+  AREAS.forEach(a=>{
+    const d=ar[a.name];const ts=STATE.tasks.filter(t=>t.area===a.name);
+    const col=d.pct>=90?"var(--ready)":d.pct>=70?"var(--sc-structural)":d.pct>=45?"var(--warn)":"var(--danger)";
+    const rs=readyState(d.pct);
+    const p=el("div","panel");p.style.marginBottom="16px";p.id="area-"+a.name.replace(/[^a-z0-9]/gi,"");
+    const scopeBars=SCOPE_KEYS.map(s=>{const ss=ts.filter(t=>t.scope===s);if(!ss.length)return"";
+      const pct=Math.round(ss.reduce((x,t)=>x+scoreOf(t),0)/ss.length);
+      return `<div style="display:flex;align-items:center;gap:9px;margin-bottom:7px">
+        <span style="font-size:11.5px;width:120px;color:var(--muted)">${SCOPES[s].icon} ${s}</span>
+        <div class="prog-mini" style="flex:1;width:auto"><i style="width:${pct}%;background:${SCOPES[s].hex}"></i></div>
+        <span class="mono" style="font-size:11px;width:34px;text-align:right;color:${SCOPES[s].hex}">${pct}%</span></div>`;}).join("");
+    p.innerHTML=`
+      <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+        <div class="mini-ring" style="width:62px;height:62px">${ring(d.pct,62,col)}</div>
+        <div style="flex:1;min-width:180px">
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            <h3 style="font-size:18px">${a.name}</h3>
+            <span class="chip" style="background:${rs.bg};color:${rs.fg}">${rs.label}</span></div>
+          <div style="font-size:12px;color:var(--muted);margin-top:4px">${a.type} · ${a.floors} · ${a.area.toLocaleString()} sqf · built ${a.year} · ${a.prod}</div>
+        </div>
+        <div style="text-align:right"><div class="mono" style="font-size:28px;font-weight:700;color:${col}">${d.pct}%</div>
+          <div style="font-size:11px;color:var(--muted)">${d.done}/${d.total} tasks closed</div></div>
+      </div>
+      <div style="margin-top:16px;border-top:1px solid var(--line);padding-top:15px">${scopeBars||'<span style="color:var(--faint);font-size:12px">No tasks logged yet for this area.</span>'}</div>
+      <div style="margin-top:13px;text-align:right">
+        <button class="btn btn-ghost" style="padding:7px 14px;font-size:12.5px" onclick="openAreaTasks('${a.name.replace(/'/g,"\\'")}')">View ${d.total} tasks</button></div>`;
+    wrap.appendChild(p);
+  });
+}
+function openAreaTasks(name){
+  const ts=STATE.tasks.filter(t=>t.area===name);
+  const body=`<div class="table-scroll"><table><thead><tr><th>Task</th><th>Scope</th><th>Status</th><th></th></tr></thead>
+    <tbody>${ts.map(t=>{const st=STATUSES[t.status];return `<tr>
+      <td class="tb-task">${t.task}</td>
+      <td><span class="scope-chip" style="background:${SCOPES[t.scope].hex}">${t.scope}</span></td>
+      <td><span class="chip" style="background:${st.color}22;color:${st.hex}"><span class="chip-dot" style="background:${st.hex}"></span>${t.status}</span></td>
+      <td><button class="btn btn-ghost" style="padding:5px 11px;font-size:12px" onclick="openTask('${t.id}')">Open</button></td></tr>`;}).join("")}</tbody></table></div>`;
+  modal(name+" · tasks",body);
+}
+
+/* =====================================================================
+   VIEW: ORSVAI ACCOUNTABILITY
+   ===================================================================== */
+function viewOrsvai(root){
+  const v=el("div","view");
+  // overall ORSVAI score = same status mapping per the framework
+  const score=overallReadiness();
+  v.innerHTML=`<div class="panel" style="margin-bottom:18px">
+    <div class="panel-head"><div><div class="eyebrow">ORSVAI · Excellence Accountability Framework</div>
+      <h2 style="font-size:22px;margin-top:4px">Who owns what — and is it verified?</h2></div>
+      <div style="text-align:right"><div class="mono" style="font-size:30px;font-weight:700;color:var(--ready)">${score}%</div>
+        <div style="font-size:11px;color:var(--muted)">Accountability score</div></div></div>
+    <p style="color:var(--muted);font-size:13.5px;max-width:66ch;margin-bottom:16px">
+      Every task carries the six ORSVAI roles. <b>Verification determines the actual score</b> — a completed task only
+      counts in full once the Verify role signs off.</p>
+    <div class="orsvai-legend">${["O","R","S","V","A","I"].map(k=>`
+      <div class="ol"><div class="badge" style="background:${ORSVAI[k].hex}">${k}</div>
+        <div><div class="t">${ORSVAI[k].name}</div><div class="d">${ORSVAI[k].desc}</div></div></div>`).join("")}</div>
+    <div class="orsvai-score-key">
+      ${Object.entries(STATUSES).map(([s,o])=>`<div class="osk"><span class="dot" style="background:${o.hex}"></span>${s} = ${o.score}%</div>`).join("")}
+      <div class="osk" style="border-color:var(--v)"><span class="dot" style="background:var(--v)"></span>🔍 Verify confirms the score</div>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="toolbar">
+      <select id="o_scope" class="grow"><option value="">All scopes</option>${SCOPE_KEYS.map(s=>`<option>${s}</option>`).join("")}</select>
+      <select id="o_status" class="grow"><option value="">All statuses</option>${Object.keys(STATUSES).map(s=>`<option>${s}</option>`).join("")}</select>
+      <select id="o_verify" class="grow"><option value="">Verified + unverified</option><option value="y">Verified only</option><option value="n">Awaiting verification</option></select>
+    </div>
+    <div class="table-scroll" id="orsvaiTable"></div>
+  </div>`;
+  root.appendChild(v);
+
+  const render=()=>{
+    const fs=$("#o_scope").value,fst=$("#o_status").value,fv=$("#o_verify").value;
+    let ts=STATE.tasks.filter(t=>(!fs||t.scope===fs)&&(!fst||t.status===fst)&&(fv===""||(fv==="y"?t.verified:!t.verified)));
+    ts=ts.sort((a,b)=>STATUSES[a.status].score-STATUSES[b.status].score);
+    $("#orsvaiTable").innerHTML=`<table><thead><tr>
+      <th>Task</th><th>Accountability (ORSVAI)</th><th>Status</th><th>Score</th><th>Verify</th></tr></thead>
+      <tbody>${ts.map(t=>{
+        const st=STATUSES[t.status];const sc=Math.round(scoreOf(t));
+        const roles=["O","R","S","V","A","I"].map(k=>`<span class="role-pill" style="background:${ORSVAI[k].hex}1a;color:${ORSVAI[k].hex}">
+          <b style="background:${ORSVAI[k].hex}">${k}</b>${(t.roles&&t.roles[k])||"—"}</span>`).join("");
+        const canVerify = t.status==="Completed" && !t.verified;
+        return `<tr>
+          <td class="tb-task" style="max-width:230px">${t.task}<small>${t.area} · ${t.scope}</small></td>
+          <td style="max-width:340px;line-height:2">${roles}</td>
+          <td><span class="chip" style="background:${st.color}22;color:${st.hex}"><span class="chip-dot" style="background:${st.hex}"></span>${t.status}</span></td>
+          <td class="mono" style="font-weight:700;color:${sc>=90?"var(--ready)":sc>=50?"var(--warn)":"var(--danger)"}">${sc}%</td>
+          <td>${t.verified?'<span class="chip" style="background:var(--ready-soft);color:var(--ready)">🔍 Verified</span>':
+            canVerify?`<button class="btn btn-gold" style="padding:6px 13px;font-size:12px" onclick="verifyTask('${t.id}')">Verify now</button>`:
+            '<span style="font-size:11.5px;color:var(--faint)">—</span>'}</td>
+        </tr>`;}).join("")}</tbody></table>`;
+  };
+  ["#o_scope","#o_status","#o_verify"].forEach(s=>$(s).onchange=render);
+  render();
+}
+function verifyTask(id){
+  const t=STATE.tasks.find(x=>x.id===id);if(!t)return;
+  t.verified=true;logEvent("Verify",`<b>${(t.roles&&t.roles.V)||"Verifier"}</b> verified "${t.task}" — score now counts in full`);
+  save();toast("Task verified","Accountability score updated · team earns full XP","🔍");renderView();
+}
+
+/* =====================================================================
+   VIEW: LEADERBOARD & REWARDS (gamification)
+   ===================================================================== */
+function viewRewards(root){
+  const v=el("div","view");
+  const teams=Object.values(teamStats()).sort((a,b)=>b.xp-a.xp);
+  const podium=[teams[1],teams[0],teams[2]]; // 2nd, 1st, 3rd
+  const heights=[88,118,68], medals=["🥈","👑","🥉"], rankNo=[2,1,3];
+
+  v.innerHTML=`<div class="gami-hero">
+    <div class="panel">
+      <div class="panel-head"><div class="panel-title">🏆 Team standings</div>
+        <span style="font-size:11.5px;color:var(--muted)">XP from closed, verified & prioritised tasks</span></div>
+      <div class="podium">${podium.map((t,i)=>t?`
+        <div class="pod">
+          <div class="pod-av" style="background:linear-gradient(135deg,${t.color},#fff5)">${i===1?'<span class="crown">👑</span>':""}${t.av}</div>
+          <div class="pod-name">${t.dept}</div>
+          <div class="pod-xp">${t.xp.toLocaleString()} XP</div>
+          <div class="pod-stand" style="height:${heights[i]}px;background:linear-gradient(180deg,${t.color}cc,${t.color}33)">${rankNo[i]}</div>
+        </div>`:"").join("")}</div>
+    </div>
+    <div class="panel">
+      <div class="panel-head"><div class="panel-title">📈 XP distribution</div></div>
+      <div class="chart-box" style="height:300px"><canvas id="cXp"></canvas></div>
+    </div>
+  </div>
+
+  <div class="panel" style="margin-top:18px">
+    <div class="panel-head"><div class="panel-title">Full leaderboard</div></div>
+    <div id="lbList"></div>
+  </div>
+
+  <div class="panel" style="margin-top:18px">
+    <div class="panel-head"><div><div class="eyebrow">Achievement rewards</div>
+      <div class="panel-title" style="margin-top:3px">Badges to unlock</div></div>
+      <select id="achTeam" class="grow" style="padding:9px 13px;background:var(--panel);border:1px solid var(--line-2);border-radius:10px;color:var(--ink);max-width:240px"></select></div>
+    <div class="badge-grid" id="badgeGrid"></div>
+  </div>`;
+  root.appendChild(v);
+
+  // leaderboard rows
+  const maxXp=teams[0].xp||1;
+  $("#lbList").innerHTML=teams.map((t,i)=>`
+    <div class="lb-row">
+      <div class="lb-rank">${i+1}</div>
+      <div class="lb-av" style="background:linear-gradient(135deg,${t.color},${t.color}66)">${t.av}</div>
+      <div class="lb-info">
+        <div class="lb-name">${t.dept} <span class="lvl-tag">${t.level.tag} · ${t.level.name}</span></div>
+        <div class="lb-lead">Led by ${t.leader} · ${t.verified}/${t.tasks} verified · ${t.unlocked.length} badges</div>
+        <div class="lb-bar"><i style="width:${Math.round(t.xp/maxXp*100)}%"></i></div>
+      </div>
+      <div class="lb-right"><div class="lb-xp">${t.xp.toLocaleString()}</div>
+        <div class="lb-level">${t.readiness}% ready</div></div>
+    </div>`).join("");
+
+  // xp chart
+  charts.xp=mkChart("#cXp",{
+    type:"bar",
+    data:{labels:teams.map(t=>t.dept),datasets:[
+      {label:"Task XP",data:teams.map(t=>t.baseXp),backgroundColor:"#3FB8F5",borderRadius:5,stack:"x"},
+      {label:"Badge XP",data:teams.map(t=>t.achXp),backgroundColor:"#F6B743",borderRadius:5,stack:"x"}]},
+    options:{indexAxis:"y",plugins:{legend:{labels:{color:"#EAEFFF",usePointStyle:true,font:{size:11}}}},
+      scales:{x:{stacked:true,grid:{color:"rgba(255,255,255,.06)"},ticks:{color:"#9AA8D6"}},
+        y:{stacked:true,grid:{display:false},ticks:{color:"#EAEFFF",font:{size:10.5}}}}}
+  });
+
+  // badges
+  const sel=$("#achTeam");
+  sel.innerHTML=teams.map(t=>`<option value="${t.dept}">${t.av} ${t.dept} — ${t.unlocked.length}/${ACHIEVEMENTS.length} unlocked</option>`).join("");
+  const renderBadges=()=>{
+    const t=teams.find(x=>x.dept===sel.value)||teams[0];
+    const have=new Set(t.unlocked.map(a=>a.id));
+    $("#badgeGrid").innerHTML=ACHIEVEMENTS.map(a=>{
+      const ok=have.has(a.id);
+      return `<div class="ach ${ok?"unlocked":"locked"}">
+        <div class="ach-ic">${a.icon}</div><div class="ach-name">${a.name}</div>
+        <div class="ach-desc">${a.desc}</div>
+        <div class="ach-status">${ok?`✓ +${a.xp} XP`:"🔒 Locked · "+a.xp+" XP"}</div></div>`;
+    }).join("");
+  };
+  sel.onchange=renderBadges;renderBadges();
+}
+
+/* =====================================================================
+   TASK DETAIL MODAL + actions
+   ===================================================================== */
+function modal(title,body,foot){
+  const m=el("div","modal-bg");m.onclick=e=>{if(e.target===m)m.remove();};
+  m.innerHTML=`<div class="modal"><div class="modal-head"><h3>${title}</h3>
+    <button class="modal-x" onclick="this.closest('.modal-bg').remove()">×</button></div>
+    <div class="modal-body">${body}</div>${foot?`<div style="margin-top:18px;display:flex;gap:10px;justify-content:flex-end">${foot}</div>`:""}</div>`;
+  $("#modalMount").appendChild(m);
+  return m;
+}
+function openTask(id){
+  const t=STATE.tasks.find(x=>x.id===id);if(!t)return;
+  const st=STATUSES[t.status];
+  const roles=["O","R","S","V","A","I"].map(k=>`<span class="role-pill" style="background:${ORSVAI[k].hex}1a;color:${ORSVAI[k].hex}">
+    <b style="background:${ORSVAI[k].hex}">${k}</b>${(t.roles&&t.roles[k])||"—"}</span>`).join(" ");
+  const body=`
+    <div style="display:flex;align-items:center;gap:9px;margin-bottom:14px;flex-wrap:wrap">
+      <span class="scope-chip" style="background:${SCOPES[t.scope].hex}">${SCOPES[t.scope].icon} ${t.scope}</span>
+      <span class="priority-flag" style="background:${PRIORITIES[t.priority]}22;color:${PRIORITIES[t.priority]}">${t.priority}</span>
+      <span class="chip" style="background:${st.color}22;color:${st.hex}"><span class="chip-dot" style="background:${st.hex}"></span>${t.status}</span>
+      ${t.verified?'<span class="chip" style="background:var(--ready-soft);color:var(--ready)">🔍 Verified</span>':""}</div>
+    <p style="font-size:15px;font-weight:600;margin-bottom:14px">${t.task}</p>
+    <div class="detail-row"><span class="k">ID</span><span class="val mono">${t.id}</span></div>
+    <div class="detail-row"><span class="k">Area</span><span class="val">${t.area}</span></div>
+    <div class="detail-row"><span class="k">Owning department</span><span class="val">${t.dept}</span></div>
+    <div class="detail-row"><span class="k">Start of work</span><span class="val mono">${t.startDate||"—"}</span></div>
+    <div class="detail-row"><span class="k">Planned completion</span><span class="val mono">${t.planDate||"—"}</span></div>
+    <div class="detail-row"><span class="k">Actual completion</span><span class="val mono">${t.completionDate||"—"}</span></div>
+    <div class="detail-row"><span class="k">Accountability score</span><span class="val mono" style="color:var(--ready)">${Math.round(scoreOf(t))}%</span></div>
+    <div style="margin:14px 0 6px;font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:700">ORSVAI roles</div>
+    <div style="line-height:2.2">${roles}</div>
+    ${t.notes?`<div style="margin-top:14px;font-size:13px;color:var(--muted)"><b style="color:var(--ink)">Notes:</b> ${t.notes}</div>`:""}
+    <div style="margin-top:18px"><label style="font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:700">Update status</label>
+      <select id="m_status" style="width:100%;margin-top:7px;padding:11px;background:var(--bg-2);border:1px solid var(--line-2);border-radius:10px;color:var(--ink)">
+        ${Object.keys(STATUSES).map(s=>`<option ${s===t.status?"selected":""}>${s}</option>`).join("")}</select></div>`;
+  const foot=`<button class="btn btn-ghost" onclick="this.closest('.modal-bg').remove()">Close</button>
+    <button class="btn btn-primary" onclick="updateTaskStatus('${t.id}',this)">Save status</button>`;
+  modal("Task detail",body,foot);
+}
+function updateTaskStatus(id,btn){
+  const t=STATE.tasks.find(x=>x.id===id);if(!t)return;
+  const old=t.status;const ns=btn.closest(".modal").querySelector("#m_status").value;
+  if(ns===old){btn.closest(".modal-bg").remove();return;}
+  t.status=ns;
+  if(ns==="Completed"){t.completionDate=t.completionDate||new Date().toISOString().slice(0,10);
+    logEvent("Complete",`<b>${t.dept}</b> completed "${t.task}" — awaiting verification`);
+    const r=btn.getBoundingClientRect();xpBurst(r.left,r.top,t.priority==="Critical"?40:25);
+    toast("Task completed!","Have the Verify role sign it off to bank full XP","🎯");
+  } else {
+    if(ns!=="Completed")t.verified=false;
+    logEvent("Update",`<b>${t.dept}</b> moved "${t.task}" to ${ns}`);
+    toast("Status updated",t.task,"✎");
+  }
+  save();btn.closest(".modal-bg").remove();renderTabs();renderView();
+}
+
+/* =====================================================================
+   ADMIN · EXPORT · SYNC
+   ===================================================================== */
+function adminTools(){
+  if(ROLE!=="admin"){toast("Admin only","Enter with the admin key to use these tools","🔒");return;}
+  const body=`<p style="color:var(--muted);font-size:13.5px;margin-bottom:14px">Manage the readiness dataset.</p>
+    <div class="detail-row"><span class="k">Tasks on board</span><span class="val mono">${STATE.tasks.length}</span></div>
+    <div class="detail-row"><span class="k">Cloud sync</span><span class="val">${CONFIG.APPS_SCRIPT_URL?"Configured":"Not set"}</span></div>`;
+  const foot=`<button class="btn btn-ghost" onclick="exportData()">⬇ Export JSON</button>
+    <button class="btn btn-gold" onclick="resetData(this)">↺ Reset to seed</button>`;
+  modal("Admin tools",body,foot);
+}
+function exportData(){
+  const blob=new Blob([JSON.stringify(STATE,null,2)],{type:"application/json"});
+  const a=el("a");a.href=URL.createObjectURL(blob);a.download="nirapon-readiness-"+new Date().toISOString().slice(0,10)+".json";a.click();
+  toast("Data exported","JSON snapshot downloaded","⬇");
+}
+function resetData(btn){
+  STATE={tasks:seedData(),log:[{t:"Seed",d:"Dataset reset to fresh demo seed",ts:Date.now()}]};save();
+  if(btn)btn.closest(".modal-bg").remove();renderTabs();renderView();toast("Reset complete","Fresh seed data generated","↺");
+}
+async function syncCloud(){
+  if(!CONFIG.APPS_SCRIPT_URL){toast("Cloud sync not set","Add your Apps Script URL in CONFIG to enable","☁");return;}
+  $("#syncStatus").textContent="Syncing…";
+  try{
+    await fetch(CONFIG.APPS_SCRIPT_URL,{method:"POST",
+      headers:{"Content-Type":"text/plain;charset=utf-8"}, // text/plain avoids CORS preflight to Apps Script
+      body:JSON.stringify({action:"save",token:CONFIG.SYNC_TOKEN,data:STATE})});
+    $("#syncStatus").textContent="Cloud · synced";toast("Synced to cloud","Saved to Google Sheets","☁");
+  }catch(e){$("#syncStatus").textContent="Local · live";toast("Sync failed","Check the Apps Script URL & deployment","⚠");}
+}
+// Optional: pull shared state from the cloud on load (call from boot if desired)
+async function pullCloud(){
+  if(!CONFIG.APPS_SCRIPT_URL) return false;
+  try{
+    const r=await fetch(CONFIG.APPS_SCRIPT_URL,{method:"GET"});
+    const j=await r.json();
+    if(j&&j.ok&&j.state&&Array.isArray(j.state.tasks)){
+      STATE=j.state;save();return true;
+    }
+  }catch(e){/* stay on local */}
+  return false;
+}
+
+/* boot */
+window.addEventListener("DOMContentLoaded",()=>{$("#gatePass").focus();});
+</script>
+</body>
+</html>
